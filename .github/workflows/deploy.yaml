@@ -25,6 +25,9 @@ jobs:
 
       - name: Install CapRover CLI
         run: npm install -g caprover
+        
+      - name: Create deploy tarball
+        run: tar -cvf deploy.tar --exclude='./.git' --exclude='./node_modules' --exclude='./dist' --exclude='./deploy.tar' .
 
       - name: Deploy
         env:
