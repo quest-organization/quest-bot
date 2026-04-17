@@ -1,2 +1,1 @@
-# quest-bot
-Quest's Official Discord Bot
+# Quest's Official Discord Bot
