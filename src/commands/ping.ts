@@ -1,4 +1,5 @@
 import type { Command } from './index.js';
+import { emojis } from '#utils/emoji.js';
 
 export default {
 	data: {
@@ -6,6 +7,12 @@ export default {
 		description: 'Ping!',
 	},
 	async execute(interaction) {
-		await interaction.reply('Pong!');
+		await interaction.deferReply();
+		
+		const reply = await interaction.fetchReply();
+		
+		const ping = reply.createdTimestamp - interaction.createdTimestamp;
+		
+		interaction.editReply(`${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms`)
 	},
 } satisfies Command;
