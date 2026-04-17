@@ -36,4 +36,3 @@ jobs:
           --caproverUrl "$CAPROVER_URL"
           --appToken "$CAPROVER_APP_TOKEN"
           --caproverApp "$CAPROVER_APP"
-          --branch main
