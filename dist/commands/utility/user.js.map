@@ -1,1 +1,0 @@
-{"version":3,"file":"user.js","sourceRoot":"","sources":["../../../src/commands/utility/user.ts"],"names":[],"mappings":"AAEA,eAAe;IACd,IAAI,EAAE;QACL,IAAI,EAAE,MAAM;QACZ,WAAW,EAAE,sCAAsC;KACnD;IACD,KAAK,CAAC,OAAO,CAAC,WAAW;QACxB,MAAM,WAAW,CAAC,KAAK,CAAC,2BAA2B,WAAW,CAAC,IAAI,CAAC,QAAQ,GAAG,CAAC,CAAC;IAClF,CAAC;CACiB,CAAC"}
