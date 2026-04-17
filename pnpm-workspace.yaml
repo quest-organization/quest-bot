@@ -1,4 +1,9 @@
-onlyBuiltDependencies:
-  - '@prisma/engines'
-  - prisma
-  - unrs-resolver
+allowBuilds:
+  '0': '@prisma/engines'
+  '1':
+    prisma: true
+  '2':
+    unrs-resolver: true
+  '@prisma/engines': true
+  prisma: true
+  unrs-resolver: true
