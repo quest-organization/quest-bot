@@ -36,3 +36,4 @@ jobs:
           --caproverUrl "$CAPROVER_URL"
           --appToken "$CAPROVER_APP_TOKEN"
           --caproverApp "$CAPROVER_APP"
+          --tarFile ./deploy.tar
