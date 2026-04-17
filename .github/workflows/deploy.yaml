@@ -1,4 +1,4 @@
-name: Deploy to CapRover
+name: Deploy
 
 on:
   push:
