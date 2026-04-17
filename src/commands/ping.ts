@@ -4,7 +4,7 @@ import { emojis } from '#utils/emoji.js';
 export default {
 	data: {
 		name: 'ping',
-		description: 'Ping!',
+		description: `Return the bot's latency.`,
 	},
 	async execute(interaction) {
 		await interaction.deferReply();
