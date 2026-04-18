@@ -9,7 +9,6 @@
 		"lint": "prettier --check . && eslint --ext .ts --format=pretty src",
 		"deploy": "node --env-file-if-exists=.env dist/util/deploy.js",
 		"format": "prettier --write . && eslint --ext .ts --fix --format=pretty src",
-		"postinstall": "prisma generate",
 		"start": "node --env-file-if-exists=.env dist/index.js",
 		"dev": "tsc --watch & node --watch --env-file=.env dist/index.js"
 	},
