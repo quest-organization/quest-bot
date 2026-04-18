@@ -17,7 +17,7 @@ const DEV_MODE = process.env['DEV'] === 'true'
 export default {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
-		if (!interaction.isCommand()) return;
+		if (!interaction.isChatInputCommand()) return;
 		
 		if (DEV_MODE && !DEV_IDS.has(interaction.user.id)) {
 			await interaction.reply({
@@ -27,14 +27,14 @@ export default {
 			return;
 		}
 		
-		if (interaction.isCommand()) {
-			const command = commands.get(interaction.commandName);
 
-			if (!command) {
-				throw new Error(`Command '${interaction.commandName}' not found.`);
-			}
-			
-			await command.execute(interaction);
+		const command = commands.get(interaction.commandName);
+
+		if (!command) {
+			throw new Error(`Command '${interaction.commandName}' not found.`);
 		}
+		
+		await command.execute(interaction);
+
 	},
 } satisfies Event<Events.InteractionCreate>;
