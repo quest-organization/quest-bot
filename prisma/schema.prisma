@@ -1,8 +1,19 @@
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Server {
+  id             String   @id
+  name           String
+  blacklisted    Boolean  @default(false)
+  settings       Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("server")
 }
