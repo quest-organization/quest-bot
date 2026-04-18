@@ -7,9 +7,9 @@
 	"scripts": {
 		"build": "tsc",
 		"lint": "prettier --check . && eslint --ext .ts --format=pretty src",
-		"deploy": "node --env-file=.env dist/util/deploy.js",
+		"deploy": "node --env-file-if-exists=.env dist/util/deploy.js",
 		"format": "prettier --write . && eslint --ext .ts --fix --format=pretty src",
-		"start": "node dist/index.js",
+		"start": "node --env-file-if-exists=.env dist/index.js",
 		"dev": "node --env-file=.env dist/index.js"
 	},
 	"dependencies": {
