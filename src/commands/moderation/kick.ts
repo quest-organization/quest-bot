@@ -1,5 +1,5 @@
 import type { Command } from '../index.js';
-import { ButtonBuilder, ButtonStyle, ActionRowBuilder, ApplicationCommandOptionType, PermissionsBitField, GuildMember } from 'discord.js';
+import { ButtonBuilder, ButtonStyle, ActionRowBuilder, ApplicationCommandOptionType, PermissionsBitField, GuildMember, MessageFlags } from 'discord.js';
 import { emojis } from '#utils/emoji.js';
 
 export default {
@@ -21,22 +21,37 @@ export default {
         ]
 	},
 	async execute(interaction) {
+        if (!interaction.inCachedGuild()) {
+            await interaction.reply({ content: `${emojis.rightArrow2} This command can only be used in a server.`, flags: MessageFlags.Ephemeral });
+            return;
+        }
+        
         const member = interaction.member as GuildMember;
         
         if (!member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
             return
         }
-        
-		const target = interaction.options.getUser('target', true);
-		const reason = interaction.options.getString('reason') ?? 'No reason provided';
 
-        if (target.id === interaction.user.id) {
-            await interaction.reply({ content: `${emojis.rightArrow2} You cannot ban yourself.`, ephemeral: true });
+        const targetMember = interaction.options.getMember('target');
+		const reason = interaction.options.getString('reason') ?? 'No reason provided';
+        
+        if (!targetMember) {
+            await interaction.reply({ content: `${emojis.rightArrow2} That user is not in this server.`, flags: MessageFlags.Ephemeral });
+            return;
+        }
+        
+        if (targetMember.id === interaction.user.id) {
+            await interaction.reply({ content: `${emojis.rightArrow2} You cannot kick yourself.`, flags: MessageFlags.Ephemeral });
             return;
         }
 
-        if (target.id === interaction.guild?.ownerId) {
-            await interaction.reply({ content: `${emojis.rightArrow2} You cannot ban the server owner.`, ephemeral: true });
+        if (targetMember.id === interaction.guild.ownerId) {
+            await interaction.reply({ content: `${emojis.rightArrow2} You cannot kick the server owner.`, flags: MessageFlags.Ephemeral });
+            return;
+        }
+        
+        if (!targetMember.kickable){
+            await interaction.reply({ content: `${emojis.rightArrow2} I cannot kick this user.`, flags: MessageFlags.Ephemeral });
             return;
         }
 
@@ -53,7 +68,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-			content: `${emojis.rightArrow1} Are you sure you want to kick ${target} for reason: ${reason}?`,
+			content: `${emojis.rightArrow1} Are you sure you want to kick ${targetMember.user.username} for reason: ${reason}?`,
 			components: [row],
             withResponse: true,
 		});
@@ -63,8 +78,8 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await interaction.guild!.members.kick(target);
-                await confirmation.update({ content: `${emojis.rightArrow2} ${target.username} has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                await interaction.guild!.members.kick(targetMember);
+                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }
