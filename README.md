@@ -3,13 +3,13 @@
 
 # Quest Discord Bot
 
-An opensource modern Discord Bot.
+An opensource modern Discord Bot built for moderation, utilities and support!
 
 ## Running locally
 
-1. Clone the repository
+1. Clone the repository.
 2. Create a PostgreSQL database for this bot.
-3. Create a `.env` file based on `.env.example` and fill in the required values
+3. Create a `.env` file based on `.env.example` and fill in the required values.
 4. Install dependencies with `pnpm install`
 5. Deploy the commands with `pnpm run deploy`
 6. Run the development server with `pnpm dev`
