@@ -7,6 +7,6 @@ export default {
 		description: 'Provides information about the user.',
 	},
 	async execute(interaction) {
-		await interaction.reply(`${emojis.rightArrow2} This command was run by ${interaction.user.username}.`);
+		await interaction.reply(`${emojis.rightArrow2} This command was run by **${interaction.user.username}**.`);
 	},
 } satisfies Command;
