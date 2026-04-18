@@ -30,6 +30,17 @@ export default {
 		const target = interaction.options.getUser('target', true);
 		const reason = interaction.options.getString('reason') ?? 'No reason provided';
 
+        if (target.id === interaction.user.id) {
+            await interaction.reply({ content: `${emojis.rightArrow2} You cannot ban yourself.`, ephemeral: true });
+            return;
+        }
+
+        if (target.id === interaction.guild?.ownerId) {
+            await interaction.reply({ content: `${emojis.rightArrow2} You cannot ban the server owner.`, ephemeral: true });
+            return;
+        }
+
+
 		const confirm = new ButtonBuilder()
             .setCustomId('confirm')
 			.setLabel('Confirm Ban')
