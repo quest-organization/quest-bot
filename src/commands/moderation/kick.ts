@@ -5,7 +5,7 @@ import { emojis } from '#utils/emoji.js';
 export default {
 	data: {
 		name: 'kick',
-		description: 'Kick someone from the discord serve.',
+		description: 'Kick someone from the discord server.',
         options: [
             {
                 type: ApplicationCommandOptionType.User,
