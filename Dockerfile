@@ -19,4 +19,4 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
-CMD ["pnpm", "start"]
+CMD ["sh", "-c", "pnpm run deploy && pnpm start"]
