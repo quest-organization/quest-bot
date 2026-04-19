@@ -94,7 +94,7 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await createWarn(interaction.guild.id, targetMember.id, interaction.user.id, reason, expiresAt);
+                await createWarn(interaction.guild.id, targetMember.id, interaction.user.id, interaction.guild.name, reason, expiresAt);
                 await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been warned with reason: ${reason}`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });

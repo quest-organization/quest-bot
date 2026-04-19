@@ -2,13 +2,21 @@ import { prisma } from "./prisma.js";
 
 export async function createWarn(
     guildId: string,
+    guildName: string,
     userId: string,
     moderatorId: string,
     reason: string,
     expiresAt: Date | null = null,
 ) {
-    return prisma.warn.create({
-        data: { guildId, userId, moderatorId, reason, expiresAt },
+    return prisma.$transaction(async (tx) => {
+        await tx.server.upsert({
+            where: { id: guildId },
+            create: { id: guildId, name: guildName },
+            update: { name: guildName },
+        });
+        return tx.warn.create({
+            data: { guildId, userId, moderatorId, reason, expiresAt },
+        });
     });
 }
 

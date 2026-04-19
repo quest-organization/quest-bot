@@ -16,6 +16,8 @@ model Server {
   updatedAt      DateTime @updatedAt
   
   warns          Warn[]
+  mutes          Mute[]
+  reminders      Reminder[]
   
   @@map("server")
 }
@@ -42,6 +44,8 @@ model Mute {
   reason    String?
   expiresAt DateTime?
   createdAt DateTime @default(now())
+  
+  server    Server    @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@unique([guildId, userId])
   @@index([expiresAt])
@@ -55,6 +59,8 @@ model Reminder {
   message   String
   remindAt  DateTime
   createdAt DateTime @default(now())
+  
+  server    Server?  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@index([remindAt])
   @@index([userId])
