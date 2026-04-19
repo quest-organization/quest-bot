@@ -29,7 +29,8 @@ export default {
         const member = interaction.member as GuildMember;
         
         if (!member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-            return
+            await interaction.reply({ content: `${emojis.rightArrow2} You do not have permission to kick members.`, flags: MessageFlags.Ephemeral });
+            return;
         }
 
         const targetMember = interaction.options.getMember('target');
