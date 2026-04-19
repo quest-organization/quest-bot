@@ -44,8 +44,13 @@ export default {
         const targetMember = interaction.options.getMember('target') as GuildMember
         const reason = interaction.options.getString('reason') ?? 'No reason provided';
         const durationStr = interaction.options.getString('duration') as StringValue
-        const duration = durationStr ? ms(durationStr) : null
+        const duration = durationStr ? ms(durationStr as StringValue) : null;
         const expiresAt = duration ? new Date(Date.now() + duration) : null;
+        
+        if (durationStr && (typeof duration !== 'number' || isNaN(duration))) {
+            await interaction.reply({ content: `${emojis.rightArrow2} Invalid duration format.`, flags: MessageFlags.Ephemeral });
+            return;
+        }
 
         if (!targetMember) {
             await interaction.reply({ content: `${emojis.rightArrow2} That user is not in this server.`, flags: MessageFlags.Ephemeral });
