@@ -60,7 +60,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to unmute ${targetMember.user.username} with reason: ${reason}?`,
+            content: `${emojis.rightArrow1} Are you sure you want to unmute <@${targetMember.user.id}> with reason: ${reason}?`,
             components: [row],
             withResponse: true,
         });
@@ -72,7 +72,7 @@ export default {
             if (confirmation.customId === 'confirm') {
                 await removeMute(interaction.guild.id, targetMember.id);
                 targetMember.timeout(null, reason)
-                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been unmuted with reason: ${reason}`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been unmuted with reason: ${reason}`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }

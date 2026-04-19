@@ -57,7 +57,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to unwarn ${warn.userId} with reason: ${reason}?\n${emojis.rightArrow2} They were warned for: ${warn.reason} <t:${Math.floor(warn.createdAt.getTime() / 1000)}:R>`,
+            content: `${emojis.rightArrow1} Are you sure you want to unwarn <@${warn.userId}> with reason: ${reason}?\n${emojis.rightArrow2} They were warned for: ${warn.reason} <t:${Math.floor(warn.createdAt.getTime() / 1000)}:R>`,
             components: [row],
             withResponse: true,
         });

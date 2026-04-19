@@ -84,7 +84,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to warn ${targetMember.user.username} with reason: ${reason}?`,
+            content: `${emojis.rightArrow1} Are you sure you want to warn <@${targetMember.user.id}> with reason: ${reason}?`,
             components: [row],
             withResponse: true,
         });
@@ -95,7 +95,7 @@ export default {
             
             if (confirmation.customId === 'confirm') {
                 await createWarn(interaction.guild.id, targetMember.id, interaction.user.id, interaction.guild.name, reason, expiresAt);
-                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been warned with reason: ${reason}`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been warned with reason: ${reason}`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }

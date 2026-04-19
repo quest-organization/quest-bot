@@ -69,7 +69,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-			content: `${emojis.rightArrow1} Are you sure you want to kick ${targetMember.user.username} with reason: ${reason}?`,
+			content: `${emojis.rightArrow1} Are you sure you want to kick <@${targetMember.user.id}> with reason: ${reason}?`,
 			components: [row],
             withResponse: true,
 		});
@@ -83,7 +83,7 @@ export default {
                     `You have been kicked from **${interaction.guild.name}**.\nReason: ${reason}`
                 ).catch(() => {});
                 await interaction.guild!.members.kick(targetMember);
-                await confirmation.update({ content: `${emojis.rightArrow2} **${targetMember.user.username}** has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }

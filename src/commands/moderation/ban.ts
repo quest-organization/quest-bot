@@ -68,7 +68,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-			content: `${emojis.rightArrow1} Are you sure you want to ban ${targetMember.user.username} for reason: ${reason}?`,
+			content: `${emojis.rightArrow1} Are you sure you want to ban <@${targetMember.user.username}> for reason: ${reason}?`,
 			components: [row],
             withResponse: true,
 		});
@@ -79,7 +79,7 @@ export default {
             
             if (confirmation.customId === 'confirm') {
                 await interaction.guild!.members.ban(targetMember);
-                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been banned with reason: ${reason}`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.username}> has been banned with reason: ${reason}`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }
