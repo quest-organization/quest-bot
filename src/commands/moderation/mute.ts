@@ -17,13 +17,13 @@ export default {
             },
             {
                 type: ApplicationCommandOptionType.String,
-                name: "reason",
-                description: "Provide a reason for their mute"
+                name: "duration",
+                description: "Specify a duration for the mute"
             },
             {
                 type: ApplicationCommandOptionType.String,
-                name: "duration",
-                description: "Specify a duration for the mute"
+                name: "reason",
+                description: "Provide a reason for their mute"
             }
             
         ]
