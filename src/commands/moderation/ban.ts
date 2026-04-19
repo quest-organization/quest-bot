@@ -29,6 +29,7 @@ export default {
         const member = interaction.member as GuildMember;
         
         if (!member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+            await interaction.reply({ content: `${emojis.rightArrow2} You do not have permission to ban members.`, flags: MessageFlags.Ephemeral });
             return
         }
 
