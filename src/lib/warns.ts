@@ -40,3 +40,9 @@ export async function removeWarn(warnId: string) {
 export async function clearWarns(guildId: string, userId: string) {
     return prisma.warn.deleteMany({ where: { guildId, userId } });
 }
+
+export async function getWarn(warnId: string, guildId: string) {
+    const warn = await prisma.warn.findUnique({ where: { id: warnId } });
+    if (!warn || warn.guildId !== guildId) return null;
+    return warn;
+}
