@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   deploy:
@@ -18,28 +19,41 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main')
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - uses: actions/setup-node@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
         with:
-          node-version: '24'
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install CapRover CLI
-        run: npm install -g caprover
-        
-      - name: Create deploy tarball
-        run: tar -cvf deploy.tar --exclude='./.git' --exclude='./node_modules' --exclude='./dist' --exclude='./deploy.tar' .
+      - name: Preset Image Name
+        run: |
+          SHA="${{ github.event.workflow_run.head_sha || github.sha }}"
+          IMAGE=$(echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$(echo ${SHA} | cut -c1-7)" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_URL=${IMAGE}" >> $GITHUB_ENV
 
-      - name: Deploy
-        env:
-          CAPROVER_URL: ${{ secrets.CAPROVER_URL }}
-          CAPROVER_APP_TOKEN: ${{ secrets.CAPROVER_APP_TOKEN }}
-          CAPROVER_APP: ${{ secrets.CAPROVER_APP }}
-        run: >
-          caprover deploy
-          --caproverUrl "$CAPROVER_URL"
-          --appToken "$CAPROVER_APP_TOKEN"
-          --caproverApp "$CAPROVER_APP"
-          --tarFile ./deploy.tar
+      - name: Build and push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy Image to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_URL }}"
+          app: "${{ secrets.CAPROVER_APP }}"
+          token: "${{ secrets.CAPROVER_APP_TOKEN }}"
+          image: ${{ env.IMAGE_URL }}
