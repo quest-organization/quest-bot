@@ -21,15 +21,28 @@ model Server {
 }
 
 model Warn {
-  id             String @id
-  serverId       String
-  userId         String
-  moderatorId    String
-  reason         String?
-  createdAt      DateTime @default(now())
+  id          String    @id @default(cuid())
+  guildId     String
+  userId      String
+  moderatorId String
+  reason      String?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
   
-  server     Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  server      Server    @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
+  @@index([guildId, userId])
   @@map("warns")
 }
 
+model Mute {
+  id        String   @id @default(cuid())
+  guildId   String
+  userId    String
+  reason    String?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, userId])
+  @@index([expiresAt])
+}
