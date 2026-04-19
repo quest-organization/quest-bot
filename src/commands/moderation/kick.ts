@@ -87,7 +87,8 @@ export default {
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }
-        } catch {
+        } catch (err) {
+            console.error(err)
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });
         }
 	},
