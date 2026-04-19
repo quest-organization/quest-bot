@@ -94,7 +94,7 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await createMute(interaction.guild.id, targetMember.id, expiresAt, reason);
+                await createMute(interaction.guild.id, targetMember.id, interaction.guild.name, expiresAt, reason);
                 await enforceMute(interaction.guild, targetMember.id);
                 await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been muted with reason: ${reason}`, components: [] });
             } else if (confirmation.customId === 'cancel') {

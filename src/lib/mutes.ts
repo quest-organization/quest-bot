@@ -1,11 +1,24 @@
 import { prisma } from "./prisma.js";
 import { Guild } from 'discord.js';
 
-export async function createMute(guildId: string, userId: string, expiresAt: Date | null, reason?: string) {
-    return prisma.mute.upsert({
-        where: { guildId_userId: { guildId, userId } },
-        create: { guildId, userId, expiresAt, reason },
-        update: { expiresAt, reason },
+export async function createMute(
+    guildId: string,
+    guildName: string,
+    userId: string,
+    expiresAt: Date | null,
+    reason?: string,
+) {
+    return prisma.$transaction(async (tx) => {
+        await tx.server.upsert({
+            where: { id: guildId },
+            create: { id: guildId, name: guildName },
+            update: { name: guildName },
+        });
+        return tx.mute.upsert({
+            where: { guildId_userId: { guildId, userId } },
+            create: { guildId, userId, expiresAt, reason },
+            update: { expiresAt, reason },
+        });
     });
 }
 
