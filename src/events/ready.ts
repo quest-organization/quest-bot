@@ -1,10 +1,19 @@
 import { Events } from 'discord.js';
 import type { Event } from './index.js';
+import { enforceMute, getActiveMutes } from '#lib/mutes.js'
 
 export default {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
+		
+		setInterval(async () => {
+			const mutes = await getActiveMutes();
+			for (const mute of mutes) {
+				const guild = client.guilds.cache.get(mute.guildId);
+				if (guild) await enforceMute(guild, mute.userId);
+			}
+		}, 6 * 60 * 60 * 1000);
 	},
 } satisfies Event<Events.ClientReady>;
