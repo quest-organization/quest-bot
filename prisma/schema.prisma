@@ -46,3 +46,16 @@ model Mute {
   @@unique([guildId, userId])
   @@index([expiresAt])
 }
+
+model Reminder {
+  id        String   @id @default(cuid())
+  userId    String
+  guildId   String?
+  channelId String?
+  message   String
+  remindAt  DateTime
+  createdAt DateTime @default(now())
+
+  @@index([remindAt])
+  @@index([userId])
+}
