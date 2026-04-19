@@ -84,8 +84,16 @@ export default {
                 ).catch(() => {});
                 await interaction.guild!.members.kick(targetMember);
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
         } catch (err) {
             console.error(err)

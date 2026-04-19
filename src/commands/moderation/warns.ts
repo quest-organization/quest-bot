@@ -51,7 +51,8 @@ export default {
         
         await interaction.reply({ content });
         
-        
-
+        setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+        }, 3000);
     },
 } satisfies Command;

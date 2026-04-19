@@ -96,8 +96,16 @@ export default {
             if (confirmation.customId === 'confirm') {
                 await createWarn(interaction.guild.id, interaction.guild.name, targetMember.id, interaction.user.id, reason, expiresAt);
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been warned with reason: ${reason}`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
         } catch(err) {
             console.error(err)

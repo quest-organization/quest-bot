@@ -73,8 +73,16 @@ export default {
                 await removeMute(interaction.guild.id, targetMember.id);
                 targetMember.timeout(null, reason)
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been unmuted with reason: ${reason}`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
         } catch {
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });

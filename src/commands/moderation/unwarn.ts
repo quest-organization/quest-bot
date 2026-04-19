@@ -69,8 +69,16 @@ export default {
             if (confirmation.customId === 'confirm') {
                 await removeWarn(warn.id);
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${warn.userId}> has been unwarned with reason: ${reason}`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
         } catch {
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });
