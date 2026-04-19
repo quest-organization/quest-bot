@@ -5,7 +5,7 @@ import { emojis } from '#utils/emoji.js';
 export default {
 	data: {
 		name: 'kick',
-		description: 'Kick someone from the discord serve.',
+		description: 'Kick someone from the discord server.',
         options: [
             {
                 type: ApplicationCommandOptionType.User,
@@ -79,8 +79,11 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
+                await targetMember.send(
+                    `You have been kicked from **${interaction.guild.name}**.\nReason: ${reason}`
+                ).catch(() => {});
                 await interaction.guild!.members.kick(targetMember);
-                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} **${targetMember.user.username}** has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
             }

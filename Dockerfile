@@ -21,4 +21,4 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
-CMD ["sh", "-c", "pnpm run deploy && pnpm start"]
+CMD ["sh", "-c", "pnpm prisma migrate deploy && pnpm run deploy && pnpm start"]
