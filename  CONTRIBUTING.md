@@ -1,6 +1,6 @@
 # Contributing to Quest Bot
 
-Contributing to Quest Bot requires basic knowledge of Typescript and Discord.JS. When contributing to Quest Bot please make sure you have 
+Contributing to Quest Bot requires basic knowledge of Typescript, Discord.JS and prisma.
 
 ## AI Rules
 
