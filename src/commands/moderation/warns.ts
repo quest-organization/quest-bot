@@ -50,9 +50,5 @@ export default {
         let content = `${emojis.rightArrow1} ${active.length} active warn(s) for <@${targetMember.user.id}>:\n${lines.join('\n')}`;
         
         await interaction.reply({ content });
-        
-        setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-        }, 3000);
     },
 } satisfies Command;

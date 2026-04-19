@@ -1,12 +1,15 @@
 import { Events } from 'discord.js';
 import type { Event } from './index.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js'
+import { heartbeat } from '#utils/heartbeat.js';
 
 export default {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
+		
+		heartbeat(client);
 		
 		setInterval(async () => {
 			const mutes = await getActiveMutes();
