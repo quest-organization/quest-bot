@@ -54,3 +54,12 @@ export async function getWarn(warnId: string, guildId: string) {
     if (!warn || warn.guildId !== guildId) return null;
     return warn;
 }
+
+export async function purgeExpiredWarns(gracePeriodDays = 90) {
+    const cutoff = new Date(Date.now() - gracePeriodDays * 24 * 60 * 60 * 1000);
+    return prisma.warn.deleteMany({
+        where: {
+            expiresAt: { not: null, lte: cutoff },
+        },
+    });
+}
