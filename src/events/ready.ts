@@ -45,7 +45,6 @@ export default {
 		
 		setInterval(async () => {
 			await enforceMutes().catch(err => console.error(err));
-			purgeExpiredWarns().catch(err => console.error(err));
 		}, 30 * 60 * 1000); // 30 min
 	},
 } satisfies Event<Events.ClientReady>;
