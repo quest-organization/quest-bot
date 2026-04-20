@@ -61,7 +61,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to ban <@${targetMember.id}> for reason: ${reason}?`,
+            content: `${emojis.rightArrow1} Are you sure you want to unban <@${targetMember.id}> for reason: ${reason}?`,
             components: [row],
             withResponse: true,
         });
