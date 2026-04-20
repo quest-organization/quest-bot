@@ -44,8 +44,13 @@ export default {
         const targetMember = interaction.options.getMember('target') as GuildMember
         const reason = interaction.options.getString('reason') ?? 'No reason provided';
         const durationStr = interaction.options.getString('duration') as StringValue
-        const duration = durationStr ? ms(durationStr) : null
+        const duration = durationStr ? ms(durationStr as StringValue) : null;
         const expiresAt = duration ? new Date(Date.now() + duration) : null;
+        
+        if (durationStr && (typeof duration !== 'number' || isNaN(duration))) {
+            await interaction.reply({ content: `${emojis.rightArrow2} Invalid duration format.`, flags: MessageFlags.Ephemeral });
+            return;
+        }
 
         if (!targetMember) {
             await interaction.reply({ content: `${emojis.rightArrow2} That user is not in this server.`, flags: MessageFlags.Ephemeral });
@@ -79,7 +84,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to warn ${targetMember.user.username} for ${durationStr} with reason: ${reason}?`,
+            content: `${emojis.rightArrow1} Are you sure you want to warn <@${targetMember.user.id}> with reason: ${reason}?`,
             components: [row],
             withResponse: true,
         });
@@ -89,12 +94,21 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await createWarn(interaction.guild.id, targetMember.id, interaction.user.id, reason, expiresAt);
-                await confirmation.update({ content: `${emojis.rightArrow2} ${targetMember.user.username} has been warned for ${durationStr} with reason: ${reason}`, components: [] });
+                await createWarn(interaction.guild.id, interaction.guild.name, targetMember.id, interaction.user.id, reason, expiresAt);
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been warned with reason: ${reason}`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
-        } catch {
+        } catch(err) {
+            console.error(err)
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });
         }
     },
