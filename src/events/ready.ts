@@ -39,9 +39,12 @@ export default {
 		purgeExpiredBans(client);
 		
 		setInterval(async () => {
+			purgeExpiredBans(client).catch(err => console.error(err));
+		}, 60 * 1000); // 1 min
+		
+		setInterval(async () => {
 			await enforceMutes();
 			purgeExpiredWarns().catch(err => console.error(err));
-			purgeExpiredBans(client).catch(err => console.error(err));
 		}, 30 * 60 * 1000); // 30 min
 	},
 } satisfies Event<Events.ClientReady>;

@@ -69,17 +69,6 @@ export async function removeBan(guild: Guild, userId: string): Promise<boolean> 
     return true;
 }
 
-export async function enforceBan(guild: Guild, userId: string): Promise<boolean> {
-    const ban = await getBan(guild.id, userId);
-    if (!ban) return false;
-
-    if (ban.expiresAt !== null && ban.expiresAt <= new Date()) {
-        return removeBan(guild, userId);
-    }
-
-    return false;
-}
-
 export async function purgeExpiredBans(client: Client) {
     const expired = await prisma.ban.findMany({
         where: {
