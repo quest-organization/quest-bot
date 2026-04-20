@@ -101,7 +101,7 @@ export default {
                 ).catch(() => {});
                 
                 await enforceMute(interaction.guild, targetMember.id);
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been muted with reason: ${reason}`, components: [] });
+                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been muted with reason: ${reason}${expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''}`, components: [] });
                 
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
