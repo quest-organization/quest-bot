@@ -20,21 +20,7 @@ export async function createWarn(
     });
 }
 
-export async function getActiveWarns(guildId: string, userId: string) {
-    return prisma.warn.findMany({
-        where: {
-            guildId,
-            userId,
-            OR: [
-                { expiresAt: null },
-                { expiresAt: { gt: new Date() } },
-            ],
-        },
-        orderBy: { createdAt: 'desc' },
-    });
-}
-
-export async function getAllWarns(guildId: string, userId: string) {
+export async function getWarns(guildId: string, userId: string) {
     return prisma.warn.findMany({
         where: { guildId, userId },
         orderBy: { createdAt: 'desc' },
@@ -55,7 +41,7 @@ export async function getWarn(warnId: string, guildId: string) {
     return warn;
 }
 
-export async function purgeExpiredWarns(gracePeriodDays = 90) {
+export async function purgeExpiredWarns(gracePeriodDays = 30) {
     const cutoff = new Date(Date.now() - gracePeriodDays * 24 * 60 * 60 * 1000);
     return prisma.warn.deleteMany({
         where: {

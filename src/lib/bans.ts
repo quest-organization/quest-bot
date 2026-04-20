@@ -1,5 +1,5 @@
 import { prisma } from "./prisma.js";
-import { Guild, PermissionFlagsBits } from 'discord.js';
+import { Guild, PermissionFlagsBits, Client } from 'discord.js';
 
 export async function createBan(
     guildId: string,
@@ -22,7 +22,7 @@ export async function createBan(
     });
 }
 
-export async function removeBans(guildId: string, userId: string) {
+export async function clearBans(guildId: string, userId: string) {
     return prisma.ban.deleteMany({
         where: { guildId, userId },
     });
@@ -34,21 +34,13 @@ export async function getBan(guildId: string, userId: string) {
     });
 }
 
-export async function getActiveBans() {
+export async function getBans() {
     return prisma.ban.findMany({
         where: {
             OR: [
                 { expiresAt: null },
                 { expiresAt: { gt: new Date() } },
             ],
-        },
-    });
-}
-
-export async function getExpiredBans() {
-    return prisma.ban.findMany({
-        where: {
-            expiresAt: { not: null, lte: new Date() },
         },
     });
 }
@@ -71,14 +63,13 @@ export async function removeBan(guild: Guild, userId: string): Promise<boolean> 
 
     try {
         await guild.bans.remove(userId);
-    } catch {
-    }
+    } catch {}
     
-    await removeBans(guild.id, userId);
+    await clearBans(guild.id, userId);
     return true;
 }
 
-export async function enforceExpiry(guild: Guild, userId: string): Promise<boolean> {
+export async function enforceBan(guild: Guild, userId: string): Promise<boolean> {
     const ban = await getBan(guild.id, userId);
     if (!ban) return false;
 
@@ -87,4 +78,21 @@ export async function enforceExpiry(guild: Guild, userId: string): Promise<boole
     }
 
     return false;
+}
+
+export async function purgeExpiredBans(client: Client) {
+    const expired = await prisma.ban.findMany({
+        where: {
+            expiresAt: { not: null, lte: new Date() },
+        },
+    });
+
+    for (const ban of expired) {
+        const guild = client.guilds.cache.get(ban.guildId);
+        if (guild) {
+            await removeBan(guild, ban.userId);
+        } else {
+            await prisma.ban.delete({ where: { id: ban.id } }).catch(() => {});
+        }
+    }
 }
