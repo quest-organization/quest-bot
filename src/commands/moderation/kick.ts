@@ -87,13 +87,13 @@ export default {
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
-                }, 3000);
+                }, 5000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
-                }, 3000);
+                }, 5000);
             }
         } catch (err) {
             console.error(err)
