@@ -16,9 +16,10 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json pnpm-lock.yaml ./
+COPY prisma.config.ts ./
 COPY prisma ./prisma/
 RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
-CMD ["sh", "-c", "pnpx prisma db push && pnpm run deploy && pnpm start"]
+CMD ["sh", "-c", "pnpm prisma db push && pnpm run deploy && pnpm start"]

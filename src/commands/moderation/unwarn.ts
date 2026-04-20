@@ -57,7 +57,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-            content: `${emojis.rightArrow1} Are you sure you want to unwarn ${warn.userId} with reason: ${reason}?\n${emojis.rightArrow2} They were warned for: ${warn.reason} <t:${Math.floor(warn.createdAt.getTime() / 1000)}:R>`,
+            content: `${emojis.rightArrow1} Are you sure you want to unwarn <@${warn.userId}> with reason: ${reason}?\n${emojis.rightArrow2} They were warned for: ${warn.reason} <t:${Math.floor(warn.createdAt.getTime() / 1000)}:R>`,
             components: [row],
             withResponse: true,
         });
@@ -69,8 +69,16 @@ export default {
             if (confirmation.customId === 'confirm') {
                 await removeWarn(warn.id);
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${warn.userId}> has been unwarned with reason: ${reason}`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
+                
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000);
             }
         } catch {
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });

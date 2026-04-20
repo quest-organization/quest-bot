@@ -14,5 +14,9 @@ export default {
 		const ping = reply.createdTimestamp - interaction.createdTimestamp;
 		
 		interaction.editReply(`${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms`)
+		
+		setTimeout(() => {
+            interaction.deleteReply().catch(() => {});
+    	}, 3000);
 	},
 } satisfies Command;

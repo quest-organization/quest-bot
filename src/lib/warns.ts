@@ -2,13 +2,21 @@ import { prisma } from "./prisma.js";
 
 export async function createWarn(
     guildId: string,
+    guildName: string,
     userId: string,
     moderatorId: string,
     reason: string,
     expiresAt: Date | null = null,
 ) {
-    return prisma.warn.create({
-        data: { guildId, userId, moderatorId, reason, expiresAt },
+    return prisma.$transaction(async (tx) => {
+        await tx.server.upsert({
+            where: { id: guildId },
+            create: { id: guildId, name: guildName },
+            update: { name: guildName },
+        });
+        return tx.warn.create({
+            data: { guildId, userId, moderatorId, reason, expiresAt },
+        });
     });
 }
 
@@ -45,4 +53,13 @@ export async function getWarn(warnId: string, guildId: string) {
     const warn = await prisma.warn.findUnique({ where: { id: warnId } });
     if (!warn || warn.guildId !== guildId) return null;
     return warn;
+}
+
+export async function purgeExpiredWarns(gracePeriodDays = 90) {
+    const cutoff = new Date(Date.now() - gracePeriodDays * 24 * 60 * 60 * 1000);
+    return prisma.warn.deleteMany({
+        where: {
+            expiresAt: { not: null, lte: cutoff },
+        },
+    });
 }
