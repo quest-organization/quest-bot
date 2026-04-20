@@ -34,16 +34,17 @@ export default {
 		}
 		
 		
-		await enforceMutes();
-		purgeExpiredWarns();
-		purgeExpiredBans(client);
+		await enforceMutes().catch(err => console.error(err));
+		purgeExpiredWarns().catch(err => console.error(err));
+		purgeExpiredBans(client).catch(err => console.error(err));
 		
 		setInterval(async () => {
+			purgeExpiredWarns().catch(err => console.error(err));
 			purgeExpiredBans(client).catch(err => console.error(err));
 		}, 60 * 1000); // 1 min
 		
 		setInterval(async () => {
-			await enforceMutes();
+			await enforceMutes().catch(err => console.error(err));
 			purgeExpiredWarns().catch(err => console.error(err));
 		}, 30 * 60 * 1000); // 30 min
 	},

@@ -88,15 +88,13 @@ export default {
         try {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
-            if (confirmation.customId === 'confirm') {
-                await createBan(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
-                
-                await targetMember.send(
-                    `You have been banned from **${interaction.guild.name}**.\nReason: ${reason}${expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''}`
-                ).catch(() => {});
-                   
+            if (confirmation.customId === 'confirm') {      
                 try {
+                    await createBan(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
                     await applyBan(interaction.guild, targetMember.id, reason);
+                    await targetMember.send(
+                        `You have been banned from **${interaction.guild.name}**.\nReason: ${reason}${expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''}`
+                    ).catch(() => {});
                     await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been banned with reason: ${reason}`, components: [] });  
                 } catch (err) {
                     console.error(err)
