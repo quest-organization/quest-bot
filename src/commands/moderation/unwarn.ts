@@ -67,9 +67,18 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await removeWarn(warn.id);
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${warn.userId}> has been unwarned with reason: ${reason}`, components: [] });
-                
+                try {
+                    await removeWarn(warn.id);
+                    const user = await interaction.client.users.fetch(warn.userId);
+                    await user.send(
+                        `Your warn for ${warn.reason} in **${interaction.guild.name}** has been removed.\nReason: ${reason}`
+                    ).catch(() => {});
+                    await confirmation.update({ content: `${emojis.rightArrow2} \`${warn.id}\` has been removed from <@${warn.userId}>. Reason: ${reason}`, components: [] });
+                } catch (err) {
+                    console.error(`Failed to remove warn ${warn.id}:`, err);
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to remove warn \`${warn.id}\` from <@${warn.userId}>.`, components: [] });
+                }
+            
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
                 }, 5000);

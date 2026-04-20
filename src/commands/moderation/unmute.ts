@@ -70,9 +70,20 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await removeMute(interaction.guild.id, targetMember.id);
-                targetMember.timeout(null, reason)
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been unmuted with reason: ${reason}`, components: [] });
+                try {
+                    await Promise.all([
+                        removeMute(interaction.guild.id, targetMember.id),
+                        targetMember.timeout(null, reason),
+                    ]);
+                    
+                    await targetMember.send(
+                        `You have been unmuted in **${interaction.guild.name}**.\nReason: ${reason}}`
+                    ).catch(() => {});
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.id}> has been unmuted. Reason: ${reason}`, components: [] });
+                } catch (err) {
+                    console.error(err);
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to unmute <@${targetMember.id}> with reason: ${reason}`, components: [] });
+                }
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});

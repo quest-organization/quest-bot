@@ -95,6 +95,11 @@ export default {
             
             if (confirmation.customId === 'confirm') {
                 await createMute(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
+                
+                await targetMember.send(
+                    `You have been muted in **${interaction.guild.name}**.\nReason: ${reason}${expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''}`
+                ).catch(() => {});
+                
                 await enforceMute(interaction.guild, targetMember.id);
                 await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been muted with reason: ${reason}`, components: [] });
                 
