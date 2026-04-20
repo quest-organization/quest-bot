@@ -6,7 +6,7 @@ import { createReminder, getReminder, removeReminder } from '#lib/reminders.js';
 
 export default {
     data: {
-        name: 'remind',
+        name: 'reminder',
         description: 'Set reminders!',
         options: [
             {
@@ -83,8 +83,12 @@ export default {
 
             const unix = Math.floor(remindAt.getTime() / 1000);
             await interaction.reply({
-                content: `${emojis.rightArrow2} Reminder <t:${unix}:R> message: ${message}\nID: \`${reminder.id}\``,
+                content: `${emojis.rightArrow2} Reminder set to go off in <t:${unix}:R> message: ${message}\nID: \`${reminder.id}\``,
             });
+            
+            setTimeout(() => {
+                interaction.deleteReply().catch(() => {});
+    	    }, 3000);
             return;
         }
 
@@ -113,6 +117,10 @@ export default {
                 content: `${emojis.rightArrow2} Reminder removed.`,
                 flags: MessageFlags.Ephemeral,
             });
+            
+            setTimeout(() => {
+                interaction.deleteReply().catch(() => {});
+            }, 3000);
             return;
         }
     },

@@ -25,9 +25,9 @@ export async function createReminder(
     });
 }
 
-export async function getReminders(guildId: string, userId: string) {
+export async function getReminders( userId: string, guildId?: string) {
     return prisma.reminder.findMany({
-        where: { guildId, userId },
+        where: { userId, guildId },
         orderBy: { remindAt: 'asc' },
     });
 }
