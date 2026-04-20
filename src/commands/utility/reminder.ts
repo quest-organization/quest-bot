@@ -88,7 +88,7 @@ export default {
             
             setTimeout(() => {
                 interaction.deleteReply().catch(() => {});
-    	    }, 3000);
+    	    }, 5000);
             return;
         }
 
@@ -120,7 +120,7 @@ export default {
             
             setTimeout(() => {
                 interaction.deleteReply().catch(() => {});
-            }, 3000);
+            }, 5000);
             return;
         }
     },
