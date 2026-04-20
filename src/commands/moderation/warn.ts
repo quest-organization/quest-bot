@@ -97,7 +97,7 @@ export default {
                 try {
                     await createWarn(interaction.guild.id, interaction.guild.name, targetMember.id, interaction.user.id, reason, expiresAt);
                     await targetMember.send(
-                        `You have been warned in **${interaction.guild.name}**.\nReason: ${reason}`
+                        `You have been warned in **${interaction.guild.name}**.\nReason: ${reason}${expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''}`
                     ).catch(() => {});
                     await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.id}> has been warned with reason: ${reason}`, components: [] })
                 } catch (err) {
