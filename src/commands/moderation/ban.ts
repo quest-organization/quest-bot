@@ -79,7 +79,7 @@ export default {
         
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
         const response = await interaction.reply({
-			content: `${emojis.rightArrow1} Are you sure you want to ban <@${targetMember.user.username}> for reason: ${reason}?`,
+			content: `${emojis.rightArrow1} Are you sure you want to ban <@${targetMember.id}> for reason: ${reason}?`,
 			components: [row],
             withResponse: true,
 		});
@@ -93,20 +93,20 @@ export default {
                 const success = await applyBan(interaction.guild, targetMember.id, reason);
                 
                 if (success) {
-                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.username}> has been banned with reason: ${reason}`, components: [] });
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been banned with reason: ${reason}`, components: [] });
                 } else {
-                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.username}> with reason: ${reason}`, components: [] });
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.id}> with reason: ${reason}`, components: [] });
                 }
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
-                }, 3000);
+                }, 5000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
-                }, 3000);
+                }, 5000);
             }
         } catch (err) {
             console.error(err)
