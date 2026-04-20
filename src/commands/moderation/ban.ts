@@ -93,9 +93,9 @@ export default {
                 const success = await applyBan(interaction.guild, targetMember.id, reason);
                 
                 if (success) {
-                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.username}> has been banned with reason: ${reason}`, components: [] });
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been banned with reason: ${reason}`, components: [] });
                 } else {
-                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.username}> with reason: ${reason}`, components: [] });
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.id}> with reason: ${reason}`, components: [] });
                 }
                 
                 setTimeout(() => {
