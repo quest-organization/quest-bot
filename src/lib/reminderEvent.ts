@@ -8,19 +8,24 @@ export function reminderScheduler(client: Client) {
             const due = await getDueReminders();
             
             for (const reminder of due) {
-                if (reminder.channelId){
-                    const channel = await client.channels.fetch(reminder.channelId).catch(() => null);
-                    
-                    if (channel?.isSendable()) {
-                        await channel.send({
-                            content: `${emojis.rightArrow2} <@${reminder.userId}> reminder: ${reminder.message}`,}
-                        );
+                try {
+                    if (reminder.channelId){
+                        const channel = await client.channels.fetch(reminder.channelId).catch(() => null);
+                        
+                        if (channel?.isSendable()) {
+                            await channel.send({
+                                content: `${emojis.rightArrow2} <@${reminder.userId}> reminder: ${reminder.message}`,}
+                            );
+                        }
+                    } else {
+                        await dmUser(client, reminder.userId, reminder.message);
                     }
-                } else {
-                    await dmUser(client, reminder.userId, reminder.message);
+                    
+                    await removeReminder(reminder.id);
+                } catch (err) {
+                    console.error(err);
                 }
                 
-                await removeReminder(reminder.id);
             }
         } catch (err) {
             console.error(err)

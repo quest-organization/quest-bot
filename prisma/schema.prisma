@@ -17,6 +17,7 @@ model Server {
   
   warns          Warn[]
   mutes          Mute[]
+  bans           Ban[]
   reminders      Reminder[]
   
   @@map("server")
@@ -38,6 +39,20 @@ model Warn {
 }
 
 model Mute {
+  id        String   @id @default(cuid())
+  guildId   String
+  userId    String
+  reason    String?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  
+  server    Server    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, userId])
+  @@index([expiresAt])
+}
+
+model Ban {
   id        String   @id @default(cuid())
   guildId   String
   userId    String
