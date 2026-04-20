@@ -1,7 +1,7 @@
 import type { Command } from '../index.js';
 import { ApplicationCommandOptionType, PermissionsBitField, GuildMember, MessageFlags } from 'discord.js';
 import { emojis } from '#utils/emoji.js';
-import { getActiveWarns } from '#lib/warns.js';
+import { getWarns } from '#lib/warns.js';
 
 export default {
     data: {
@@ -33,7 +33,7 @@ export default {
         }
         
         const targetMember = targetOption ?? member;
-        const active = await getActiveWarns(interaction.guild.id, targetMember.id);
+        const active = await getWarns(interaction.guild.id, targetMember.id);
         
         if (active.length === 0) {
             await interaction.reply({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has no active warns.`, flags: MessageFlags.Ephemeral });
