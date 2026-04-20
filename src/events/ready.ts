@@ -3,6 +3,7 @@ import type { Event } from './index.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js'
 import { heartbeat } from '#utils/heartbeat.js';
 import { purgeExpiredWarns } from '#lib/warns.js';
+import { getExpiredBans, enforceExpiry, removeBan } from '#lib/bans.js';
 import { reminderScheduler } from '#lib/reminderEvent.js';
 
 export default {
@@ -37,6 +38,12 @@ export default {
 			for (const mute of mutes) {
 				const guild = client.guilds.cache.get(mute.guildId);
 				if (guild) await enforceMute(guild, mute.userId);
+			}
+			
+			const expiredBans = await getExpiredBans();
+			for (const ban of expiredBans) {
+				const guild = client.guilds.cache.get(ban.guildId);
+				if (guild) await removeBan(guild, ban.userId);
 			}
 		}, 6 * 60 * 60 * 1000);
 	},

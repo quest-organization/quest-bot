@@ -1,6 +1,8 @@
 import type { Command } from '../index.js';
 import { ButtonBuilder, ButtonStyle, ActionRowBuilder, ApplicationCommandOptionType, PermissionsBitField, GuildMember, MessageFlags } from 'discord.js';
 import { emojis } from '#utils/emoji.js';
+import ms, { type StringValue } from 'ms'
+import { createBan, applyBan } from '#lib/bans.js';
 
 export default {
 	data: {
@@ -17,6 +19,11 @@ export default {
                 type: ApplicationCommandOptionType.String,
                 name: "reason",
                 description: "Provide a reason for their ban"
+            },
+            {
+                type: ApplicationCommandOptionType.String,
+                name: "duration",
+                description: "Provide a duration for their ban (if needed)"
             }
         ]
 	},
@@ -35,7 +42,11 @@ export default {
 
 		const targetMember = interaction.options.getMember('target') as GuildMember
 		const reason = interaction.options.getString('reason') ?? 'No reason provided';
-
+        
+        const durationStr = interaction.options.getString('duration') as StringValue
+        const duration = durationStr ? ms(durationStr as StringValue) : null;
+        const expiresAt = duration ? new Date(Date.now() + duration) : null;
+        
         if (!targetMember) {
             await interaction.reply({ content: `${emojis.rightArrow2} That user is not in this server.`, flags: MessageFlags.Ephemeral });
             return;
@@ -78,8 +89,14 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await interaction.guild!.members.ban(targetMember);
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.username}> has been banned with reason: ${reason}`, components: [] });
+                await createBan(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
+                const success = await applyBan(interaction.guild, targetMember.id, reason);
+                
+                if (success) {
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.username}> has been banned with reason: ${reason}`, components: [] });
+                } else {
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.username}> with reason: ${reason}`, components: [] });
+                }
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
