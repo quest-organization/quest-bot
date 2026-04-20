@@ -53,8 +53,8 @@ model Mute {
 
 model Reminder {
   id        String   @id @default(cuid())
-  userId    String
   guildId   String?
+  userId    String
   channelId String?
   message   String
   remindAt  DateTime

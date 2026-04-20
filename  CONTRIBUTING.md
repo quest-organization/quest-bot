@@ -4,7 +4,7 @@ Contributing to Quest Bot requires basic knowledge of Typescript, Discord.JS and
 
 ## AI Rules
 
-Please refrain from using AI to create new features. Using AI to help you understand something is fine but you can't have it vibecode or make features for you. This is especially important for HackClub events.
+Please refrain from using AI to create new features. Using AI to help you *understand* how to make something is fine but you can't have it vibecode or make features for you. This is especially important for HackClub events.
 
 ## Pull requests
 
@@ -18,6 +18,6 @@ Please write in the commit message what you have changed.
 
 ## Team
 
-You will be invited to the Quest team if you have contributed a lot towards on or more Quest projects.
+You will be invited to the Quest team if you have contributed a lot towards one or more Quest projects.
 
 ## Thanks!

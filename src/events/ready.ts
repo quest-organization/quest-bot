@@ -3,6 +3,7 @@ import type { Event } from './index.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js'
 import { heartbeat } from '#utils/heartbeat.js';
 import { purgeExpiredWarns } from '#lib/warns.js';
+import { reminderScheduler } from '#lib/reminderEvent.js';
 
 export default {
 	name: Events.ClientReady,
@@ -12,6 +13,7 @@ export default {
 		
 		heartbeat(client);
 		
+		reminderScheduler(client);
 		purgeExpiredWarns().catch(err => console.error('[cleanup] purge failed:', err));
 		
 		const mutes = await getActiveMutes();
