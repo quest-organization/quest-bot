@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { ActivityType, Events } from 'discord.js';
 import type { Event } from './index.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js'
 import { heartbeat } from '#utils/heartbeat.js';
@@ -15,6 +15,15 @@ export default {
 		
 		reminderScheduler(client);
 		purgeExpiredWarns().catch(err => console.error('[cleanup] purge failed:', err));
+		
+		client.user.setPresence({
+            activities: [{
+                name: 'custom',
+                type: ActivityType.Custom,
+                state: 'Upd: /reminder!',
+            }],
+            status: 'online',
+        });
 		
 		const mutes = await getActiveMutes();
 		for (const mute of mutes) {
