@@ -100,16 +100,8 @@ export default {
                     console.error(err)
                     await confirmation.update({ content: `${emojis.rightArrow2} Failed to ban <@${targetMember.user.id}> with reason: ${reason}`, components: [] });
                 }
-                
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
-                
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             }
         } catch (err) {
             console.error(err)

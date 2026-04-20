@@ -78,16 +78,8 @@ export default {
                     console.error(`Failed to remove warn ${warn.id}:`, err);
                     await confirmation.update({ content: `${emojis.rightArrow2} Failed to remove warn \`${warn.id}\` from <@${warn.userId}>.`, components: [] });
                 }
-            
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
-                
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             }
         } catch {
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });

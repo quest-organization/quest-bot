@@ -84,16 +84,8 @@ export default {
                     console.error(err);
                     await confirmation.update({ content: `${emojis.rightArrow2} Failed to unmute <@${targetMember.id}> with reason: ${reason}`, components: [] });
                 }
-                
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
-                
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 5000);
             }
         } catch {
             await interaction.editReply({ content: `${emojis.rightArrow2} No response within a minute or errored.`, components: [] });

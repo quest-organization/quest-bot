@@ -5,6 +5,14 @@
 
 An opensource modern Discord Bot built for moderation, utilities and support!
 
+## Discord Server
+
+Quest's Official Discord Server can be joined using the following link:
+
+https://discord.gg/ksuqZ77R88
+
+Thanks!
+
 ## Running locally
 
 1. Clone the repository.
