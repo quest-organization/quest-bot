@@ -79,11 +79,16 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await targetMember.send(
-                    `You have been kicked from **${interaction.guild.name}**.\nReason: ${reason}`
-                ).catch(() => {});
-                await interaction.guild!.members.kick(targetMember);
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been kicked for reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                try {
+                    await interaction.guild!.members.kick(targetMember);
+                    await targetMember.send(
+                        `You have been kicked from **${interaction.guild.name}**.\nReason: ${reason}}`
+                    ).catch(() => {});
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been kicked with reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                } catch (err) {
+                    console.error(err)
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to kick <@${targetMember.user.id}> with reason: ${reason}\nYou must have had a real ick towards that person.`, components: [] });
+                }
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});

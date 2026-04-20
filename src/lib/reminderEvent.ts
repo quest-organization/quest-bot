@@ -14,7 +14,7 @@ export function reminderScheduler(client: Client) {
                         
                         if (channel?.isSendable()) {
                             await channel.send({
-                                content: `${emojis.rightArrow2} <@${reminder.userId}> reminder: ${reminder.message}`,}
+                                content: `${emojis.rightArrow2} <@${reminder.userId}> reminder: ${reminder.message ?? 'No reason provided'}`,}
                             );
                         }
                     } else {

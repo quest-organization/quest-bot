@@ -94,8 +94,16 @@ export default {
             const confirmation = await response.resource!.message!.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
             
             if (confirmation.customId === 'confirm') {
-                await createWarn(interaction.guild.id, interaction.guild.name, targetMember.id, interaction.user.id, reason, expiresAt);
-                await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.user.id}> has been warned with reason: ${reason}`, components: [] });
+                try {
+                    await createWarn(interaction.guild.id, interaction.guild.name, targetMember.id, interaction.user.id, reason, expiresAt);
+                    await targetMember.send(
+                        `You have been warned in **${interaction.guild.name}**.\nReason: ${reason}`
+                    ).catch(() => {});
+                    await confirmation.update({ content: `${emojis.rightArrow2} <@${targetMember.id}> has been warned with reason: ${reason}`, components: [] })
+                } catch (err) {
+                    console.error(err)
+                    await confirmation.update({ content: `${emojis.rightArrow2} Failed to warn <@${targetMember.id}>`, components: [] })
+                }
                 
                 setTimeout(() => {
                     interaction.deleteReply().catch(() => {});
