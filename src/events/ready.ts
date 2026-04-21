@@ -20,7 +20,7 @@ export default {
             activities: [{
                 name: 'custom',
                 type: ActivityType.Custom,
-                state: 'Upd: /reminder!',
+                state: '/settings!',
             }],
             status: 'online',
         });
