@@ -6,14 +6,14 @@ import { getSettings, updateSettings } from '#lib/settings.js';
 export default {
     data: {
         name: 'settings',
-        description: 'Configure the settings for this server.',
+        description: `Configure the bot's settings for this server.`,
         default_member_permissions: PermissionFlagsBits.ManageGuild.toString(),
         dm_permission: false,
     },
     async execute(interaction) {
         const settingMenu = new StringSelectMenuBuilder()
             .setCustomId('settingOption')
-            .setPlaceholder('Select the setting to modify')
+            .setPlaceholder('Select a setting to modify')
             .addOptions(
                 new StringSelectMenuOptionBuilder()
                     .setLabel('Welcome Message')
@@ -57,7 +57,7 @@ export default {
 
                 const toggleMenu = new StringSelectMenuBuilder()
                     .setCustomId('welcomeToggle')
-                    .setPlaceholder(`Currently: ${settings.welcomePeople ? 'Enabled' : 'Disabled'}`)
+                    .setPlaceholder(`${settings.welcomePeople ? 'Enabled' : 'Disabled'}`)
                     .addOptions(
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Enable')
