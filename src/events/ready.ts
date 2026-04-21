@@ -29,7 +29,7 @@ export default {
 			const mutes = await getActiveMutes();
 			for (const mute of mutes) {
 				const guild = client.guilds.cache.get(mute.guildId);
-				if (guild) await enforceMute(guild, mute.userId);
+				if (guild) await enforceMute(guild, mute.userId).catch((err) => console.error(err));
 			}
 		}
 		
