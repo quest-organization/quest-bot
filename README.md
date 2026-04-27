@@ -5,13 +5,9 @@
 
 An opensource modern Discord Bot built for moderation, utilities and support!
 
-## Discord Server
+## Links
 
-Quest's Official Discord Server can be joined using the following link:
-
-https://discord.gg/ksuqZ77R88
-
-Thanks!
+[Status Page](https://status.questfoundation.dev), [Bot Documentation](https://questfoundation.dev/bot/docs) & [Official Discord](https://discord.gg/ksuqZ77R88)
 
 ## Running locally
 
