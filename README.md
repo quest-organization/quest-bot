@@ -5,13 +5,9 @@
 
 An opensource modern Discord Bot built for moderation, utilities and support!
 
-## Discord Server
+## Links
 
-Quest's Official Discord Server can be joined using the following link:
-
-https://discord.gg/ksuqZ77R88
-
-Thanks!
+[Status Page](https://status.questfoundation.dev), [Bot Documentation](https://docs.questfoundation.dev/quest-bot) & [Official Discord](https://discord.gg/ksuqZ77R88)
 
 ## Running locally
 
@@ -19,9 +15,11 @@ Thanks!
 2. Create a PostgreSQL database for this bot.
 3. Create a `.env` file based on `.env.example` and fill in the required values.
 4. Install dependencies with `pnpm install`
-5. Deploy the commands with `pnpm run deploy`
-6. Run the development server with `pnpm dev`
-7. The bot is now live on Discord with registered commands!
+5. Generate prisma using `pnpm prisma generate`
+6. Update your local databse using `pnpm prisma db push`
+7. Deploy the commands with `pnpm run deploy`
+8. Run the development server with `pnpm dev`
+9. The bot is now live on Discord with registered commands!
 
 ## AI declaration
 
