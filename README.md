@@ -7,7 +7,7 @@ An opensource modern Discord Bot built for moderation, utilities and support!
 
 ## Links
 
-[Status Page](https://status.questfoundation.dev), [Bot Documentation](https://questfoundation.dev/bot/docs) & [Official Discord](https://discord.gg/ksuqZ77R88)
+[Status Page](https://status.questfoundation.dev), [Bot Documentation](https://docs.questfoundation.dev/quest-bot) & [Official Discord](https://discord.gg/ksuqZ77R88)
 
 ## Running locally
 
