@@ -1,4 +1,5 @@
 import { prisma } from './prisma.js';
+import { LIMITS_ENABLED, LimitError } from './limits.js';
 
 export async function createAutoRole(
     guildId: string,
@@ -6,6 +7,14 @@ export async function createAutoRole(
     roleId: string,
     botRole?: boolean
 ) {
+    if (LIMITS_ENABLED) {
+        const autoRoleCount = await prisma.autoRole.count({ where: { guildId } });
+
+        if (autoRoleCount >= 5) {
+            throw new LimitError('A guild can only have up to 5 auto roles.');
+        }
+    }
+
     if (guildId && guildName) {
         await prisma.server.upsert({
             where: { id: guildId },

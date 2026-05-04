@@ -1,6 +1,7 @@
 import { Command } from '@sapphire/framework';
 import { MessageFlags } from 'discord.js';
 import { createAutoRole, getAutoRole, getAutoRoles, removeAutoRole } from '#lib/autorole.js';
+import { LimitError } from '#lib/limits.js';
 import { emojis } from '#utils/emoji.js';
 
 export class AutoRoleCommand extends Command {
@@ -89,6 +90,14 @@ export class AutoRoleCommand extends Command {
         });
       } catch (err) {
         console.error(err);
+        if (err instanceof LimitError) {
+          await interaction.reply({
+            content: `${emojis.rightArrow2} ${err.message}`,
+            flags: MessageFlags.Ephemeral
+          });
+          return;
+        }
+
         await interaction.reply({
           content: `${emojis.rightArrow2} That role is already an auto role in this server.`,
           flags: MessageFlags.Ephemeral
