@@ -24,12 +24,12 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
     client.user.setPresence({
       activities: [
         {
-          name: 'custom',
-          type: ActivityType.Custom,
-          state: '/settings!'
+          name: '🎫 Tickets!',
+          type: ActivityType.Watching,
+          state: 'New Feature!'
         }
       ],
-      status: 'online'
+      status: 'idle'
     });
 
     const enforceMutes = async () => {

@@ -6,6 +6,7 @@ import {
   ChannelSelectMenuBuilder,
   ChannelType,
   type Guild,
+  InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
   StringSelectMenuBuilder,
@@ -13,6 +14,18 @@ import {
 } from 'discord.js';
 import { getSettings, type ServerSettings, updateSettings } from '#lib/settings.js';
 import { emojis } from '#utils/emoji.js';
+
+const staleInteractionErrorCodes = new Set([10_015, 50_027, 10062]);
+
+function isStaleInteractionError(error: unknown): error is { code: number } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof error.code === 'number' &&
+    staleInteractionErrorCodes.has(error.code)
+  );
+}
 
 function buildWelcomePanel(settings: ServerSettings, guild: Guild, status?: string) {
   const currentChannelName = settings.welcomeChannelId
@@ -101,11 +114,22 @@ export class SettingsCommand extends Command {
         .setName('settings')
         .setDescription("Configure the bot's settings for this server.")
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-        .setDMPermission(false)
+        .setContexts(InteractionContextType.Guild)
     );
   }
 
   public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+    const safeEditReply = async (
+      options: Parameters<Command.ChatInputCommandInteraction['editReply']>[0]
+    ) => {
+      try {
+        await interaction.editReply(options);
+      } catch (error) {
+        if (isStaleInteractionError(error)) return;
+        throw error;
+      }
+    };
+
     const settingMenu = new StringSelectMenuBuilder()
       .setCustomId('settingOption')
       .setPlaceholder('Select a setting to modify')
@@ -193,14 +217,14 @@ export class SettingsCommand extends Command {
       });
 
       collector.on('end', async () => {
-        await interaction.editReply({
+        await safeEditReply({
           content: `${emojis.rightArrow2} Closed.`,
           components: []
         });
       });
     } catch (err) {
       console.error(err);
-      await interaction.editReply({
+      await safeEditReply({
         content: `${emojis.rightArrow2} No response within a minute or errored.`,
         components: []
       });

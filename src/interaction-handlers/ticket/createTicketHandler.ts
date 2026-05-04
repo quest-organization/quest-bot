@@ -1,6 +1,15 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import { ChannelType, MessageFlags, PermissionFlagsBits } from 'discord.js';
-import type { ButtonInteraction } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  LabelBuilder,
+  MessageFlags,
+  ModalBuilder,
+  PermissionFlagsBits
+} from 'discord.js';
+import { TextInputBuilder, TextInputStyle, type ButtonInteraction } from 'discord.js';
 import { getSettings, updateSettings } from '#lib/settings.js';
 
 export class ButtonHandler extends InteractionHandler {
@@ -34,6 +43,31 @@ export class ButtonHandler extends InteractionHandler {
       return;
     }
 
+    const reasonInput = new TextInputBuilder()
+      .setCustomId('ticket-reason')
+      .setStyle(TextInputStyle.Paragraph)
+      .setRequired(true)
+      .setMaxLength(1_000);
+
+    const reasonLabel = new LabelBuilder()
+      .setLabel('Reason')
+      .setTextInputComponent(reasonInput);
+
+    const modal = new ModalBuilder()
+      .setCustomId('create-ticket-modal')
+      .setTitle('Create Ticket')
+      .addLabelComponents(reasonLabel);
+
+    await interaction.showModal(modal);
+
+    const modalSubmit = await interaction.awaitModalSubmit({
+      filter: (modalInteraction) =>
+        modalInteraction.customId === 'create-ticket-modal' &&
+        modalInteraction.user.id === interaction.user.id,
+      time: 60_000
+    });
+
+    const reason = modalSubmit.fields.getTextInputValue('ticket-reason');
     const settings = await getSettings(interaction.guild.id, interaction.guild.name);
     let parent: string | undefined;
 
@@ -78,13 +112,21 @@ export class ButtonHandler extends InteractionHandler {
       ]
     });
 
-    await interaction.reply({
+    await modalSubmit.reply({
       content: 'Created a ticket!',
       flags: MessageFlags.Ephemeral
     });
 
+    const closeButton = new ButtonBuilder()
+      .setCustomId('remove-ticket')
+      .setLabel('Close Ticket')
+      .setStyle(ButtonStyle.Danger);
+
+    const closeRow = new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
+
     await channel.send({
-      content: `<@${interaction.user.id}>, your ticket has been created!`
+      content: `<@${interaction.user.id}>, your ticket has been created!\n**Reason:** ${reason}`,
+      components: [closeRow]
     });
   }
 }
