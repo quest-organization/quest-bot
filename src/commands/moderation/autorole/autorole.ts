@@ -106,7 +106,7 @@ export class AutoRoleCommand extends Command {
     }
 
     if (subcommand === 'remove') {
-      const autoRoleId = interaction.options.getString('id', true);
+      const autoRoleId = interaction.options.getString('role', true);
       const autoRole = await getAutoRole(autoRoleId);
 
       if (!autoRole) {
