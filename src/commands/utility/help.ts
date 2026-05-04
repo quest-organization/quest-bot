@@ -27,7 +27,7 @@ export class HelpCommand extends Command {
 
     await interaction.reply({
         content: commandList + `\n\n**Status:** https://status.questfoundation.dev/\n**Official Discord Server:** https://discord.gg/F4HYE8frK2\n**Documentation:** https://docs.questfoundation.dev/`,
-        flags: MessageFlags.SuppressEmbeds
+        flags: MessageFlags.SuppressEmbeds | MessageFlags.Ephemeral
     });
   }
 }
