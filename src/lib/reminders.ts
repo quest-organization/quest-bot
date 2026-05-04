@@ -9,15 +9,13 @@ export async function createReminder(
     channelId?: string,
 ) {
     if (guildId && guildName) {
-        return prisma.$transaction(async (tx) => {
-            await tx.server.upsert({
-                where: { id: guildId },
-                create: { id: guildId, name: guildName },
-                update: { name: guildName },
-            });
-            return tx.reminder.create({
-                data: { guildId, userId, channelId, message, remindAt },
-            });
+        await prisma.server.upsert({
+            where: { id: guildId },
+            create: { id: guildId, name: guildName },
+            update: { name: guildName },
+        });
+        return prisma.reminder.create({
+            data: { guildId, userId, channelId, message, remindAt },
         });
     }
     return prisma.reminder.create({

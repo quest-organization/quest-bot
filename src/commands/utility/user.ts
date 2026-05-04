@@ -1,12 +1,20 @@
-import type { Command } from '../index.js';
+import { Command } from '@sapphire/framework';
 import { emojis } from '#utils/emoji.js';
 
-export default {
-	data: {
-		name: 'user',
-		description: 'Provides information about the user.',
-	},
-	async execute(interaction) {
-		await interaction.reply(`${emojis.rightArrow2} This command was run by **${interaction.user.username}**.`);
-	},
-} satisfies Command;
+export class UserCommand extends Command {
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
+    super(context, { ...options });
+  }
+
+  public override registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) =>
+      builder.setName('user').setDescription('Provides information about the user.')
+    );
+  }
+
+  public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+    await interaction.reply(
+      `${emojis.rightArrow2} This command was run by **${interaction.user.username}**.`
+    );
+  }
+}

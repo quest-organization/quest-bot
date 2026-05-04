@@ -1,111 +1,122 @@
-import type { Command } from '../index.js';
+import { Command } from '@sapphire/framework';
 import {
-	ButtonBuilder,
-	ButtonStyle,
-	ActionRowBuilder,
-	ApplicationCommandOptionType,
-	PermissionsBitField,
-	GuildMember,
-	MessageFlags,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  GuildMember,
+  MessageFlags,
+  PermissionsBitField
 } from 'discord.js';
-import { emojis } from '#utils/emoji.js';
 import { getBan, removeBan } from '#lib/bans.js';
+import { emojis } from '#utils/emoji.js';
 
-export default {
-	data: {
-		name: 'unban',
-		description: 'Unban someone from the discord server.',
-		options: [
-			{
-				type: ApplicationCommandOptionType.User,
-				name: 'member',
-				description: 'The member to unban',
-				required: true,
-			},
-			{
-				type: ApplicationCommandOptionType.String,
-				name: 'reason',
-				description: 'Provide a reason for their unban',
-			},
-		],
-	},
-	async execute(interaction) {
-		if (!interaction.inCachedGuild()) {
-			await interaction.reply({
-				content: `${emojis.rightArrow2} This command can only be used in a server.`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
+export class UnbanCommand extends Command {
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
+    super(context, { ...options });
+  }
 
-		const member = interaction.member as GuildMember;
+  public override registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) =>
+      builder
+        .setName('unban')
+        .setDescription('Unban someone from the discord server.')
+        .addUserOption((option) =>
+          option.setName('member').setDescription('The member to unban').setRequired(true)
+        )
+        .addStringOption((option) =>
+          option.setName('reason').setDescription('Provide a reason for their unban')
+        )
+    );
+  }
 
-		if (!member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-			await interaction.reply({
-				content: `${emojis.rightArrow2} You do not have permission to unban members.`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
+  public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+    if (!interaction.inCachedGuild()) {
+      await interaction.reply({
+        content: `${emojis.rightArrow2} This command can only be used in a server.`,
+        flags: MessageFlags.Ephemeral
+      });
+      return;
+    }
 
-		const targetMember = interaction.options.getUser('member', true);
-		const reason = interaction.options.getString('reason') ?? 'No reason provided';
+    const member = interaction.member as GuildMember;
 
-		const discordBan = await interaction.guild.bans.fetch(targetMember.id).catch(() => null);
-		const dbBan = await getBan(interaction.guild.id, targetMember.id);
+    if (!member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+      await interaction.reply({
+        content: `${emojis.rightArrow2} You do not have permission to unban members.`,
+        flags: MessageFlags.Ephemeral
+      });
+      return;
+    }
 
-		if (!discordBan && !dbBan) {
-			await interaction.reply({
-				content: `${emojis.rightArrow2} That user isn't banned.`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
+    const targetMember = interaction.options.getUser('member', true);
+    const reason = interaction.options.getString('reason') ?? 'No reason provided';
 
-		const confirm = new ButtonBuilder().setCustomId('confirm').setLabel('Confirm Ban').setStyle(ButtonStyle.Danger);
+    const discordBan = await interaction.guild.bans.fetch(targetMember.id).catch(() => null);
+    const dbBan = await getBan(interaction.guild.id, targetMember.id);
 
-		const cancel = new ButtonBuilder().setCustomId('cancel').setLabel('Cancel').setStyle(ButtonStyle.Secondary);
+    if (!discordBan && !dbBan) {
+      await interaction.reply({
+        content: `${emojis.rightArrow2} That user isn't banned.`,
+        flags: MessageFlags.Ephemeral
+      });
+      return;
+    }
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
-		const response = await interaction.reply({
-			content: `${emojis.rightArrow1} Are you sure you want to unban <@${targetMember.id}> for reason: ${reason}?`,
-			components: [row],
-			withResponse: true,
-		});
+    const confirm = new ButtonBuilder()
+      .setCustomId('confirm')
+      .setLabel('Confirm Unban')
+      .setStyle(ButtonStyle.Danger);
 
-		const collectorFilter = (i: { user: { id: string } }) => i.user.id === interaction.user.id;
-		try {
-			const confirmation = await response.resource!.message!.awaitMessageComponent({
-				filter: collectorFilter,
-				time: 60_000,
-			});
+    const cancel = new ButtonBuilder()
+      .setCustomId('cancel')
+      .setLabel('Cancel')
+      .setStyle(ButtonStyle.Secondary);
 
-			if (confirmation.customId === 'confirm') {
-				try {
-					await removeBan(interaction.guild, targetMember.id);
-					await targetMember
-						.send(`You have been unbanned in **${interaction.guild.name}**.\nReason: ${reason}`)
-						.catch(() => {});
-					await confirmation.update({
-						content: `${emojis.rightArrow2} <@${targetMember.id}> has been unbanned with reason: ${reason}`,
-						components: [],
-					});
-				} catch (err) {
-					console.error(err);
-					await confirmation.update({
-						content: `${emojis.rightArrow2} Failed to unban <@${targetMember.id}> with reason: ${reason}`,
-						components: [],
-					});
-				}
-			} else if (confirmation.customId === 'cancel') {
-				await confirmation.update({ content: `${emojis.rightArrow2} Cancelled.`, components: [] });
-			}
-		} catch (err) {
-			console.error(err);
-			await interaction.editReply({
-				content: `${emojis.rightArrow2} No response within a minute or errored.`,
-				components: [],
-			});
-		}
-	},
-} satisfies Command;
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
+
+    const response = await interaction.reply({
+      content: `${emojis.rightArrow1} Are you sure you want to unban <@${targetMember.id}> for reason: ${reason}?`,
+      components: [row],
+      withResponse: true
+    });
+
+    const collectorFilter = (i: { user: { id: string } }) => i.user.id === interaction.user.id;
+
+    try {
+      const confirmation = await response.resource!.message!.awaitMessageComponent({
+        filter: collectorFilter,
+        time: 60_000
+      });
+
+      if (confirmation.customId === 'confirm') {
+        try {
+          await removeBan(interaction.guild, targetMember.id);
+          await targetMember
+            .send(`You have been unbanned in **${interaction.guild.name}**.\nReason: ${reason}`)
+            .catch(() => {});
+          await confirmation.update({
+            content: `${emojis.rightArrow2} <@${targetMember.id}> has been unbanned with reason: ${reason}`,
+            components: []
+          });
+        } catch (err) {
+          console.error(err);
+          await confirmation.update({
+            content: `${emojis.rightArrow2} Failed to unban <@${targetMember.id}> with reason: ${reason}`,
+            components: []
+          });
+        }
+      } else if (confirmation.customId === 'cancel') {
+        await confirmation.update({
+          content: `${emojis.rightArrow2} Cancelled.`,
+          components: []
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      await interaction.editReply({
+        content: `${emojis.rightArrow2} No response within a minute or errored.`,
+        components: []
+      });
+    }
+  }
+}

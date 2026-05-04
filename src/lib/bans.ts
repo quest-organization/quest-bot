@@ -8,17 +8,15 @@ export async function createBan(
     expiresAt: Date | null,
     reason?: string,
 ) {
-    return prisma.$transaction(async (tx) => {
-        await tx.server.upsert({
-            where: { id: guildId },
-            create: { id: guildId, name: guildName },
-            update: { name: guildName },
-        });
-        return tx.ban.upsert({
-            where: { guildId_userId: { guildId, userId } },
-            create: { guildId, userId, expiresAt, reason },
-            update: { expiresAt, reason },
-        });
+    await prisma.server.upsert({
+        where: { id: guildId },
+        create: { id: guildId, name: guildName },
+        update: { name: guildName },
+    });
+    return prisma.ban.upsert({
+        where: { guildId_userId: { guildId, userId } },
+        create: { guildId, userId, expiresAt, reason },
+        update: { expiresAt, reason },
     });
 }
 
