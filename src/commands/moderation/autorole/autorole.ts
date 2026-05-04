@@ -136,7 +136,7 @@ export class AutoRoleCommand extends Command {
 
         const autoRoleList = autoRoles.map(autoRole => {
             const role = interaction.guild?.roles.cache.get(autoRole.roleId);
-            const roleName = role ? role.name : `Unknown Role (${autoRole.roleId})`;
+            const roleName = role ? `<@&${role.id}>` : `Unknown Role (${autoRole.roleId})`;
             const botRoleText = autoRole.botRole ? ' (Bot Role)' : '';
             return `${emojis.rightArrow1} ${roleName}${botRoleText}`;
         }).join('\n');
