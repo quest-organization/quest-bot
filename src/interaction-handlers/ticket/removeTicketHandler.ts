@@ -87,10 +87,14 @@ export class ButtonHandler extends InteractionHandler {
 
     const ticket = await getTicketId(interaction.guild.id, channel.id);
 
-    if (ticket) {
-      await removeTicket(ticket.id);
-    }
+    try { 
+      if (ticket) {
+        await removeTicket(ticket.id);
+      }
 
-    await channel.delete(`Ticket closed by ${interaction.user.tag}.`);
+      await channel.delete(`Ticket closed by ${interaction.user.tag}.`);
+    } catch (err) {
+        console.log(err);
+    }
   }
 }

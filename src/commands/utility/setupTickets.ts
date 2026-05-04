@@ -9,7 +9,7 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
-export class SetupTicketCommand extends Command {
+export class SetupTicketsCommand extends Command {
   public constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, { ...options });
   }
@@ -17,7 +17,7 @@ export class SetupTicketCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder
-        .setName('setup-ticket')
+        .setName('setup-tickets')
         .setDescription('Post the ticket panel in a channel.')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addChannelOption((option) =>
