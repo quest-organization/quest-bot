@@ -1,7 +1,8 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import { MessageFlags } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import type { ButtonInteraction } from 'discord.js';
 import { emojis } from '#utils/emoji.js';
+import { getTicketId, removeTicket } from '#lib/tickets.js';
 
 export class ButtonHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -12,7 +13,13 @@ export class ButtonHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== 'remove-ticket') return this.none();
+    if (
+      interaction.customId !== 'remove-ticket' &&
+      interaction.customId !== 'confirm-remove-ticket' &&
+      interaction.customId !== 'cancel-remove-ticket'
+    ) {
+      return this.none();
+    }
 
     return this.some();
   }
@@ -34,6 +41,14 @@ export class ButtonHandler extends InteractionHandler {
       return;
     }
 
+    if (interaction.customId === 'cancel-remove-ticket') {
+      await interaction.update({
+        content: `${emojis.rightArrow2} Ticket closure cancelled.`,
+        components: []
+      });
+      return;
+    }
+
     const channel = interaction.channel;
 
     if (!channel || !('deletable' in channel) || !channel.deletable) {
@@ -44,8 +59,38 @@ export class ButtonHandler extends InteractionHandler {
       return;
     }
 
-    await channel.delete(
-      `Ticket channel "${channel.name}" (${channel.id}) closed by ${interaction.user.tag} (${interaction.user.id}).`
-    );
+    if (interaction.customId === 'remove-ticket') {
+      const confirmButton = new ButtonBuilder()
+        .setCustomId('confirm-remove-ticket')
+        .setLabel('Confirm Close')
+        .setStyle(ButtonStyle.Danger);
+
+      const cancelButton = new ButtonBuilder()
+        .setCustomId('cancel-remove-ticket')
+        .setLabel('Cancel')
+        .setStyle(ButtonStyle.Secondary);
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton, cancelButton);
+
+      await interaction.reply({
+        content: `${emojis.rightArrow2} Are you sure you want to close this ticket?`,
+        components: [row],
+        flags: MessageFlags.Ephemeral
+      });
+      return;
+    }
+
+    await interaction.update({
+      content: `${emojis.rightArrow2} Closing ticket...`,
+      components: []
+    });
+
+    const ticket = await getTicketId(interaction.guild.id, channel.id);
+
+    if (ticket) {
+      await removeTicket(ticket.id);
+    }
+
+    await channel.delete(`Ticket closed by ${interaction.user.tag}.`);
   }
 }

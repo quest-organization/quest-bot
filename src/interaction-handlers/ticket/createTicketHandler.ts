@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 import { TextInputBuilder, TextInputStyle, type ButtonInteraction } from 'discord.js';
 import { getSettings, updateSettings } from '#lib/settings.js';
+import { createTicket, removeTicket, setTicketChannelId } from '#lib/tickets.js';
 import { emojis } from '#utils/emoji.js';
 
 export class ButtonHandler extends InteractionHandler {
@@ -84,37 +85,46 @@ export class ButtonHandler extends InteractionHandler {
       }
     }
 
-    const channel = await interaction.guild.channels.create({
-      name: `ticket-${interaction.user.username}`,
-      type: ChannelType.GuildText,
-      parent,
-      permissionOverwrites: [
-        {
-          id: interaction.guild.id,
-          deny: [PermissionFlagsBits.ViewChannel]
-        },
-        {
-          id: interaction.user.id,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.ReadMessageHistory
-          ]
-        },
-        {
-          id: interaction.client.user.id,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.ReadMessageHistory,
-            PermissionFlagsBits.ManageChannels
-          ]
-        }
-      ]
-    });
+    const ticket = await createTicket(interaction.guild.id, interaction.guild.name, interaction.user.id, reason);
+
+    const channel = await interaction.guild.channels
+      .create({
+        name: `${ticket.ticketNumber}-${interaction.user.username}`,
+        type: ChannelType.GuildText,
+        parent,
+        permissionOverwrites: [
+          {
+            id: interaction.guild.id,
+            deny: [PermissionFlagsBits.ViewChannel]
+          },
+          {
+            id: interaction.user.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory
+            ]
+          },
+          {
+            id: interaction.client.user.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory,
+              PermissionFlagsBits.ManageChannels
+            ]
+          }
+        ]
+      })
+      .catch(async (error) => {
+        await removeTicket(ticket.id).catch(() => null);
+        throw error;
+      });
+
+    await setTicketChannelId(ticket.id, channel.id);
 
     await modalSubmit.reply({
-      content: `${emojis.rightArrow2} Created a ticket!`,
+      content: `${emojis.rightArrow2} Created ticket <#${channel.id}>!`,
       flags: MessageFlags.Ephemeral
     });
 
