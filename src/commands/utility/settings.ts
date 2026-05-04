@@ -9,6 +9,7 @@ import {
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
+  RoleSelectMenuBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
 } from 'discord.js';
@@ -42,7 +43,7 @@ function buildWelcomePanel(settings: ServerSettings, guild: Guild, status?: stri
         .setValue('enable'),
       new StringSelectMenuOptionBuilder()
         .setLabel('Disable')
-        .setDescription('Do not send a message when a user joins the server.')
+        .setDescription("Don't send a message when a user joins the server.")
         .setValue('disable')
     );
 
@@ -79,6 +80,20 @@ function buildTicketPanel(settings: ServerSettings, guild: Guild, status?: strin
     .setLabel('Remove Category')
     .setStyle(ButtonStyle.Danger)
     .setDisabled(!settings.ticketCategoryId);
+  
+  const currentStaffRole = settings.staffRole
+    ? guild.roles.cache.get(settings.staffRole)?.name
+    : null;
+  
+  const staffRole = new RoleSelectMenuBuilder()
+    .setCustomId('staffRole')
+    .setPlaceholder(currentStaffRole ?? 'Select a ticket staff role');
+
+  const removeStaffRoleButton = new ButtonBuilder()
+    .setCustomId('removeStaffRole')
+    .setLabel('Remove Staff Role')
+    .setStyle(ButtonStyle.Danger)
+    .setDisabled(!settings.staffRole);
 
   return {
     content: status
@@ -86,7 +101,9 @@ function buildTicketPanel(settings: ServerSettings, guild: Guild, status?: strin
       : `${emojis.rightArrow1} **Tickets** module:`,
     components: [
       new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(categoryMenu),
-      new ActionRowBuilder<ButtonBuilder>().addComponents(removeButton)
+      new ActionRowBuilder<ButtonBuilder>().addComponents(removeButton),
+      new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(staffRole),
+      new ActionRowBuilder<ButtonBuilder>().addComponents(removeStaffRoleButton)
     ]
   };
 }
@@ -206,13 +223,21 @@ export class SettingsCommand extends Command {
         } else if (i.customId === 'ticketCategory' && i.isChannelSelectMenu()) {
           const categoryId = i.values[0];
           const next = await updateSettings(guildId, guild.name, { ticketCategoryId: categoryId });
-          const categoryName = guild.channels.cache.get(categoryId)?.name ?? 'selected category';
 
-          await i.update(buildTicketPanel(next, guild, `Ticket category set to **${categoryName}**.`));
+          await i.update(buildTicketPanel(next, guild, `Ticket category set to <#${categoryId}>.`));
         } else if (i.customId === 'ticketCategoryRemove' && i.isButton()) {
           const next = await updateSettings(guildId, guild.name, { ticketCategoryId: null });
 
           await i.update(buildTicketPanel(next, guild, 'Ticket category removed.'));
+        } else if (i.customId === 'staffRole' && i.isRoleSelectMenu()) {
+          const roleId = i.values[0];
+          const next = await updateSettings(guildId, guild.name, { staffRole: roleId });
+
+          await i.update(buildTicketPanel(next, guild, `Ticket staff role set to <@&${roleId}>.`));
+        } else if (i.customId === 'removeStaffRole' && i.isButton()) {
+          const next = await updateSettings(guildId, guild.name, { staffRole: null });
+
+          await i.update(buildTicketPanel(next, guild, 'Ticket staff role removed.'));
         }
       });
 
