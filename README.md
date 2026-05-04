@@ -17,9 +17,8 @@ An opensource modern Discord Bot built for moderation, utilities and support!
 4. Install dependencies with `pnpm install`
 5. Generate prisma using `pnpm prisma generate`
 6. Update your local databse using `pnpm prisma db push`
-7. Deploy the commands with `pnpm run deploy`
-8. Run the development server with `pnpm dev`
-9. The bot is now live on Discord with registered commands!
+7. Run the development server with `pnpm dev`
+8. The bot will register commands automatically on startup.
 
 > [!IMPORTANT]
 > When testing, add the precondition, 'DevMode' and set 'DEV' to true in your env.

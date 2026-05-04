@@ -1,6 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
 import { MessageFlags } from 'discord.js';
 import type { ButtonInteraction } from 'discord.js';
+import { emojis } from '#utils/emoji.js';
 
 export class ButtonHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -19,7 +20,7 @@ export class ButtonHandler extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     if (!interaction.inGuild()) {
       await interaction.reply({
-        content: 'This button can only be used in a server.',
+        content: `${emojis.rightArrow2} This button can only be used in a server.`,
         flags: MessageFlags.Ephemeral
       });
       return;
@@ -27,7 +28,7 @@ export class ButtonHandler extends InteractionHandler {
 
     if (!interaction.guild) {
       await interaction.reply({
-        content: 'Failed to remove ticket.',
+        content: `${emojis.rightArrow2} Failed to remove ticket.`,
         flags: MessageFlags.Ephemeral
       });
       return;
@@ -37,7 +38,7 @@ export class ButtonHandler extends InteractionHandler {
 
     if (!channel || !('deletable' in channel) || !channel.deletable) {
       await interaction.reply({
-        content: 'I cannot delete this channel.',
+        content: `${emojis.rightArrow2} I cannot delete this channel.`,
         flags: MessageFlags.Ephemeral
       });
       return;

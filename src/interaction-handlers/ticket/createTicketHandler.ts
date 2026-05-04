@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 import { TextInputBuilder, TextInputStyle, type ButtonInteraction } from 'discord.js';
 import { getSettings, updateSettings } from '#lib/settings.js';
+import { emojis } from '#utils/emoji.js';
 
 export class ButtonHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -29,7 +30,7 @@ export class ButtonHandler extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     if (!interaction.inGuild()) {
       await interaction.reply({
-        content: 'This button can only be used in a server.',
+        content: `${emojis.rightArrow2} This button can only be used in a server.`,
         flags: MessageFlags.Ephemeral
       });
       return;
@@ -37,7 +38,7 @@ export class ButtonHandler extends InteractionHandler {
 
     if (!interaction.guild) {
       await interaction.reply({
-        content: 'Failed to create ticket.',
+        content: `${emojis.rightArrow2} Failed to create ticket.`,
         flags: MessageFlags.Ephemeral
       });
       return;
@@ -113,7 +114,7 @@ export class ButtonHandler extends InteractionHandler {
     });
 
     await modalSubmit.reply({
-      content: 'Created a ticket!',
+      content: `${emojis.rightArrow2} Created a ticket!`,
       flags: MessageFlags.Ephemeral
     });
 

@@ -1,4 +1,5 @@
 import { Command } from '@sapphire/framework';
+import { emojis } from '#utils/emoji.js';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -40,12 +41,12 @@ export class SetupTicketCommand extends Command {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 
     await channel.send({
-      content: '**Create a ticket by clicking the button below!**',
+      content: `**Create a ticket by clicking the button below!**`,
       components: [row]
     });
 
     await interaction.reply({
-      content: `Ticket panel sent in ${channel}.`,
+      content: `${emojis.rightArrow2} Ticket panel sent in ${channel}.`,
       flags: MessageFlags.Ephemeral
     });
   }
