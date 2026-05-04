@@ -21,6 +21,7 @@ model Server {
   bans           Ban[]
   reminders      Reminder[]
   tickets        Ticket[]
+  autoroles      AutoRole[]
   
   @@map("server")
 }
@@ -97,4 +98,18 @@ model Ticket {
   @@unique([guildId, ticketNumber])
   @@index([guildId, userId])
   @@map("tickets")
+}
+
+model AutoRole {
+  id           String    @id @default(cuid())
+  guildId      String
+  roleId       String
+  botRole      Boolean?
+  createdAt    DateTime  @default(now())
+  
+  server      Server    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, roleId])
+  @@index([guildId])
+  @@map("autoroles")
 }
