@@ -11,6 +11,7 @@ model Server {
   id             String   @id
   name           String
   blacklisted    Boolean  @default(false)
+  nextTicketNumber Int    @default(1)
   settings       Json     @default("{}")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -19,6 +20,7 @@ model Server {
   mutes          Mute[]
   bans           Ban[]
   reminders      Reminder[]
+  tickets        Ticket[]
   
   @@map("server")
 }
@@ -79,4 +81,20 @@ model Reminder {
 
   @@index([remindAt])
   @@index([userId])
+}
+
+model Ticket {
+  id           String    @id @default(cuid())
+  guildId      String
+  ticketNumber Int
+  channelId    String?  @unique
+  userId       String
+  reason       String?
+  createdAt    DateTime  @default(now())
+  
+  server      Server    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, ticketNumber])
+  @@index([guildId, userId])
+  @@map("tickets")
 }
