@@ -7,7 +7,6 @@
 	"scripts": {
 		"build": "rimraf dist && prisma generate && tsc",
 		"lint": "prettier --check . && eslint --ext .ts --format=pretty src",
-		"deploy": "node -e \"console.log('Slash commands are registered automatically on startup via Sapphire.')\"",
 		"format": "prettier --write . && eslint --ext .ts --fix --format=pretty src",
 		"predev": "pnpm build",
 		"start": "node --env-file-if-exists=.env dist/index.js",

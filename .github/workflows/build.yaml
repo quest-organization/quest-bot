@@ -1,6 +1,7 @@
 name: Build Test
 on:
   push:
+  pull_request:
 
 permissions:
   contents: read
@@ -23,6 +24,15 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       - name: Build
         run: pnpm build
+      - name: Build production image
+        run: docker build -t quest-bot:test .
+      - name: Smoke test production image
+        run: >
+          docker run --rm --entrypoint sh quest-bot:test -c
+          "set -e;
+          pnpm run deploy;
+          test -f /app/dist/index.js;
+          node --check /app/dist/index.js"
