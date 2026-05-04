@@ -7,7 +7,6 @@
 	"scripts": {
 		"build": "rimraf dist && prisma generate && tsc",
 		"lint": "prettier --check . && eslint --ext .ts --format=pretty src",
-		"deploy": "node --env-file-if-exists=.env dist/util/deploy.js",
 		"format": "prettier --write . && eslint --ext .ts --fix --format=pretty src",
 		"predev": "pnpm build",
 		"start": "node --env-file-if-exists=.env dist/index.js",

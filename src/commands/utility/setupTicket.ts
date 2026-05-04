@@ -1,10 +1,12 @@
 import { Command } from '@sapphire/framework';
+import { emojis } from '#utils/emoji.js';
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  MessageFlags
+  MessageFlags,
+  PermissionFlagsBits
 } from 'discord.js';
 
 export class SetupTicketCommand extends Command {
@@ -17,6 +19,7 @@ export class SetupTicketCommand extends Command {
       builder
         .setName('setup-ticket')
         .setDescription('Post the ticket panel in a channel.')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addChannelOption((option) =>
           option
             .setName('channel')
@@ -38,12 +41,12 @@ export class SetupTicketCommand extends Command {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 
     await channel.send({
-      content: '**Create a ticket by clicking the button below!**',
+      content: `**Create a ticket by clicking the button below!**`,
       components: [row]
     });
 
     await interaction.reply({
-      content: `Ticket panel sent in ${channel}.`,
+      content: `${emojis.rightArrow2} Ticket panel sent in ${channel}.`,
       flags: MessageFlags.Ephemeral
     });
   }
