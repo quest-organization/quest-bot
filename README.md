@@ -21,6 +21,10 @@ An opensource modern Discord Bot built for moderation, utilities and support!
 8. Run the development server with `pnpm dev`
 9. The bot is now live on Discord with registered commands!
 
+> [!IMPORTANT]
+> When testing, add the precondition, 'DevMode' and set 'DEV' to true in your env.
+> Any user that is not listed in 'DEVIDS' will not be able to run that command.
+
 ## AI declaration
 
 Claude (and sometimes ChatGPT) is used when I don’t know how to implement something or when something randomly breaks and I don't know how to fix it. Co-pilot is rarely used to make minimal automatic security fixes for common vulnerabilities.
