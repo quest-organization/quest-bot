@@ -1,5 +1,5 @@
 import { Listener } from '@sapphire/framework';
-import { ActivityType, Events, type Client } from 'discord.js';
+import { Events, type Client } from 'discord.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js';
 import { heartbeat } from '#utils/heartbeat.js';
 import { purgeExpiredBans } from '#lib/bans.js';
@@ -20,17 +20,6 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
 
     heartbeat(client);
     reminderScheduler(client);
-
-    client.user.setPresence({
-      activities: [
-        {
-          name: '🎫 Tickets!',
-          type: ActivityType.Watching,
-          state: 'New Feature!'
-        }
-      ],
-      status: 'idle'
-    });
 
     const enforceMutes = async () => {
       const mutes = await getActiveMutes();
