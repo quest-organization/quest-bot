@@ -4,7 +4,8 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  MessageFlags
+  MessageFlags,
+  PermissionFlagsBits
 } from 'discord.js';
 
 export class SetupTicketCommand extends Command {
@@ -17,6 +18,7 @@ export class SetupTicketCommand extends Command {
       builder
         .setName('setup-ticket')
         .setDescription('Post the ticket panel in a channel.')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addChannelOption((option) =>
           option
             .setName('channel')
