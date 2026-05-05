@@ -14,13 +14,6 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
   presence: {
-    activities: [
-      {
-        name: '/autorole',
-        type: ActivityType.Listening,
-        state: 'New Feature'
-      }
-    ],
     status: 'online'
   },
   baseUserDirectory: fileURLToPath(new URL('.', import.meta.url))

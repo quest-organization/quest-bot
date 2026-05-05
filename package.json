@@ -9,7 +9,7 @@
 		"lint": "prettier --check . && eslint --ext .ts --format=pretty src",
 		"format": "prettier --write . && eslint --ext .ts --fix --format=pretty src",
 		"predev": "pnpm build",
-		"start": "node --env-file-if-exists=.env dist/index.js",
+		"start": "node --env-file-if-exists=.env dist/sharder.js",
 		"dev": "concurrently \"tsc --watch\" \"node --watch --env-file=.env dist/index.js\""
 	},
 	"dependencies": {
