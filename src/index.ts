@@ -16,8 +16,8 @@ const client = new SapphireClient({
   presence: {
     activities: [
       {
-        name: 'Tickets!',
-        type: ActivityType.Playing,
+        name: '/autorole',
+        type: ActivityType.Listening,
         state: 'New Feature'
       }
     ],
