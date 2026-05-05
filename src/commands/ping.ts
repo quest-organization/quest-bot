@@ -22,7 +22,7 @@ export class PingCommand extends Command {
     const shardCount = interaction.client.shard?.count;
 
     await interaction.editReply(
-      `${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms\n${emojis.rightArrow2} Shard: ${typeof shardId === 'number' ? shardId : 'N/A'}/${shardCount ?? '1'}`
+      `${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms\n${emojis.rightArrow2} Shard #: ${typeof shardId === 'number' ? shardId : 'N/A'}`
     );
   }
 }
