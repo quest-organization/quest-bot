@@ -5,7 +5,7 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { ActivityType, GatewayIntentBits } from 'discord.js';
+import { GatewayIntentBits } from 'discord.js';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite
@@ -14,13 +14,6 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
   presence: {
-    activities: [
-      {
-        name: 'Tickets!',
-        type: ActivityType.Playing,
-        state: 'New Feature'
-      }
-    ],
     status: 'online'
   },
   baseUserDirectory: fileURLToPath(new URL('.', import.meta.url))

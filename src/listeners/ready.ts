@@ -1,5 +1,5 @@
 import { Listener } from '@sapphire/framework';
-import { Events, type Client } from 'discord.js';
+import { ActivityType, Events, type Client } from 'discord.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js';
 import { heartbeat } from '#utils/heartbeat.js';
 import { purgeExpiredBans } from '#lib/bans.js';
@@ -17,6 +17,12 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
 
   public async run(client: Client<true>) {
     console.log(`Ready! Logged in as ${client.user.tag}`);
+
+    client.user.setActivity({
+      name: `/autorole | Shard ${client.shard?.ids?.[0] ?? 0}`,
+      type: ActivityType.Listening,
+      state: 'New Feature'
+    });
 
     heartbeat(client);
     reminderScheduler(client);

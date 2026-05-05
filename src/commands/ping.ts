@@ -18,9 +18,10 @@ export class PingCommand extends Command {
     const reply = await interaction.fetchReply();
 
     const ping = reply.createdTimestamp - interaction.createdTimestamp;
+    const shardId = interaction.client.shard?.ids?.[0];
 
     await interaction.editReply(
-      `${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms`
+      `${emojis.rightArrow1} Client: ${ping}ms\n${emojis.rightArrow1} Websocket: ${interaction.client.ws.ping}ms\n${emojis.rightArrow2} Shard #: ${typeof shardId === 'number' ? shardId : 'N/A'}`
     );
   }
 }
