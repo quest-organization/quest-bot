@@ -5,7 +5,7 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { ActivityType, GatewayIntentBits } from 'discord.js';
+import { GatewayIntentBits } from 'discord.js';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite
