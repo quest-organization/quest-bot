@@ -2,6 +2,7 @@ import { Command } from '@sapphire/framework';
 import { MessageFlags } from 'discord.js';
 import ms, { type StringValue } from 'ms';
 import { createReminder, getReminder, removeReminder } from '#lib/reminders.js';
+import { LimitError } from '#lib/limits.js';
 import { emojis } from '#utils/emoji.js';
 
 export class ReminderCommand extends Command {
@@ -62,26 +63,39 @@ export class ReminderCommand extends Command {
 
       const remindAt = new Date(Date.now() + duration);
 
-      const reminder = interaction.inCachedGuild()
-        ? await createReminder(
-            interaction.user.id,
-            message,
-            remindAt,
-            interaction.guild.id,
-            interaction.guild.name,
-            interaction.channelId
-          )
-        : await createReminder(interaction.user.id, message, remindAt);
+      try {
+        const reminder = interaction.inCachedGuild()
+          ? await createReminder(
+              interaction.user.id,
+              message,
+              remindAt,
+              interaction.guild.id,
+              interaction.guild.name,
+              interaction.channelId
+            )
+          : await createReminder(interaction.user.id, message, remindAt);
 
-      const unix = Math.floor(remindAt.getTime() / 1000);
-      await interaction.reply({
-        content: `${emojis.rightArrow2} Reminder set to go off in <t:${unix}:R> message: ${message}\nID: \`${reminder.id}\``
-      });
+        const unix = Math.floor(remindAt.getTime() / 1000);
+        await interaction.reply({
+          content: `${emojis.rightArrow2} Reminder set to go off in <t:${unix}:R> message: ${message}\nID: \`${reminder.id}\``
+        });
 
-      setTimeout(() => {
-        interaction.deleteReply().catch(() => {});
-      }, 5000);
-      return;
+        setTimeout(() => {
+          interaction.deleteReply().catch(() => {});
+        }, 5000);
+        return;
+      } catch (err) {
+        console.error(err);
+        if (err instanceof LimitError) {
+          await interaction.reply({
+            content: `${emojis.rightArrow2} ${err.message}`,
+            flags: MessageFlags.Ephemeral
+          });
+          return;
+        }
+
+        throw err;
+      }
     }
 
     if (subcommand === 'remove') {

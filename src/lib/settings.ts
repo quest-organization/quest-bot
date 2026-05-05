@@ -5,12 +5,14 @@ export type ServerSettings = {
     welcomePeople: boolean;
     welcomeChannelId: string | null;
     ticketCategoryId: string | null;
+    staffRole: string | null;
 };
 
 export const DefaultSettings: ServerSettings = {
     welcomePeople: false,
     welcomeChannelId: null,
     ticketCategoryId: null,
+    staffRole: null,
 };
 
 export async function getSettings(guildId: string, guildName: string): Promise<ServerSettings> {

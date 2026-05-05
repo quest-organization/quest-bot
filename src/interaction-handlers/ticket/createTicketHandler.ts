@@ -87,34 +87,50 @@ export class ButtonHandler extends InteractionHandler {
 
     const ticket = await createTicket(interaction.guild.id, interaction.guild.name, interaction.user.id, reason);
 
+    const permissionOverwrites = [
+      {
+        id: interaction.guild.id,
+        deny: [PermissionFlagsBits.ViewChannel]
+      },
+      {
+        id: interaction.user.id,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory
+        ]
+      },
+      {
+        id: interaction.client.user.id,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory,
+          PermissionFlagsBits.ManageChannels
+        ]
+      }
+    ] as any[];
+
+    const staffRoleId = settings.staffRole;
+    const staffRoleExists = typeof staffRoleId === 'string' && interaction.guild.roles.cache.has(staffRoleId);
+
+    if (staffRoleExists) {
+      permissionOverwrites.push({
+        id: staffRoleId,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory
+        ]
+      });
+    }
+
     const channel = await interaction.guild.channels
       .create({
         name: `${ticket.ticketNumber}-${interaction.user.username}`,
         type: ChannelType.GuildText,
         parent,
-        permissionOverwrites: [
-          {
-            id: interaction.guild.id,
-            deny: [PermissionFlagsBits.ViewChannel]
-          },
-          {
-            id: interaction.user.id,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory
-            ]
-          },
-          {
-            id: interaction.client.user.id,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory,
-              PermissionFlagsBits.ManageChannels
-            ]
-          }
-        ]
+        permissionOverwrites
       })
       .catch(async (error) => {
         await removeTicket(ticket.id).catch(() => null);
@@ -135,8 +151,10 @@ export class ButtonHandler extends InteractionHandler {
 
     const closeRow = new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
 
+    const staffMention = staffRoleExists ? `<@&${staffRoleId}> ` : '';
+
     await channel.send({
-      content: `<@${interaction.user.id}>, your ticket has been created!\n**Reason:** ${reason}`,
+      content: `${staffMention}<@${interaction.user.id}>, your ticket has been created!\n**Reason:** ${reason}`,
       components: [closeRow]
     });
   }

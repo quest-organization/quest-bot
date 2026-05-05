@@ -1,4 +1,5 @@
-import { prisma } from "./prisma.js";
+import { prisma } from './prisma.js';
+import { LIMITS_ENABLED, LimitError } from './limits.js';
 
 export async function createReminder(
     userId: string,
@@ -8,6 +9,14 @@ export async function createReminder(
     guildName?: string,
     channelId?: string,
 ) {
+    if (LIMITS_ENABLED) {
+        const reminderCount = await prisma.reminder.count({ where: { userId } });
+
+        if (reminderCount >= 5) {
+            throw new LimitError('You can only have up to 5 reminders.');
+        }
+    }
+
     if (guildId && guildName) {
         await prisma.server.upsert({
             where: { id: guildId },

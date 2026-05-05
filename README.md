@@ -5,6 +5,13 @@
 
 An opensource modern Discord Bot built for moderation, utilities and support!
 
+Quest is capable of:
+- All moderation commands such as: /ban, /kick, /mute & /warn.
+- Autoroles
+- Utilties such as reminders.
+- Complete ticket system.
+- Welcoming new members.
+
 ## Links
 
 [Status Page](https://status.questfoundation.dev), [Bot Documentation](https://docs.questfoundation.dev/quest-bot) & [Official Discord](https://discord.gg/ksuqZ77R88)
