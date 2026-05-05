@@ -20,8 +20,9 @@ export class HelpCommand extends Command {
         .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
         .map((cmd) => {
           const description = cmd.applicationCommandRegistry['apiCalls'][0]?.builtData.description ?? cmd.description;
+          const commandName = cmd.applicationCommandRegistry['apiCalls'][0]?.builtData.name ?? cmd.name;
 
-          return `${emojis.rightArrow1} **/${cmd.name}** - ${description}`;
+          return `${emojis.rightArrow1} **/${commandName}** - ${description}`;
         })
         .join('\n');
 
