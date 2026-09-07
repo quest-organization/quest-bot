@@ -22,6 +22,8 @@ export type ServerSettings = {
 	starboardEmoji: string;
 	honeypotChannelId: string | null;
 	automodExemptRoleId?: string | null;
+	birthdayEnabled?: boolean;
+	birthdayChannelId?: string | null;
 };
 
 export const DefaultSettings: ServerSettings = {
@@ -42,6 +44,8 @@ export const DefaultSettings: ServerSettings = {
 	starboardEmoji: '⭐️',
 	honeypotChannelId: null,
 	automodExemptRoleId: null,
+	birthdayEnabled: false,
+	birthdayChannelId: null,
 };
 
 // used for logging setting changes
@@ -72,6 +76,9 @@ export const SETTING_LABELS: Record<keyof ServerSettings, { category: string; na
 	honeypotChannelId: { category: 'Honey Pot', name: 'Channel' },
 
 	automodExemptRoleId: { category: 'Automod', name: 'Exclusion Role' },
+
+	birthdayEnabled: { category: 'Birthdays', name: 'Status' },
+	birthdayChannelId: { category: 'Birthdays', name: 'Channel' },
 };
 
 // caching rather than ending up fetching the settings basically each message

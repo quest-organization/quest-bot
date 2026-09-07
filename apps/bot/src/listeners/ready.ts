@@ -5,6 +5,7 @@
 import { Listener } from '@sapphire/framework';
 import { ActivityType, type Client, Events } from 'discord.js';
 import { initBanScheduler } from '#lib/banScheduler.js';
+import { initBirthdayScheduler } from '#lib/birthdayScheduler.js';
 import { giveawayScheduler } from '#lib/giveawayEvent.js';
 import { logger } from '#lib/logger.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js';
@@ -50,6 +51,7 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
 		initReminderScheduler(client);
 		giveawayScheduler(client);
 		initBanScheduler(client);
+		initBirthdayScheduler(client);
 		initPurgeScheduler();
 
 		const enforceMutes = async () => {

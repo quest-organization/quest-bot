@@ -237,6 +237,16 @@ model Afk {
   @@map("afks")
 }
 
+model Birthday {
+  userId    String   @id
+  day       Int
+  month     Int
+  createdAt DateTime @default(now())
+
+  @@index([month, day])
+  @@map("birthdays")
+}
+
 model Giveaway {
   id          String   @id @default(cuid())
   guildId     String

@@ -223,6 +223,45 @@ function buildConfessionPanel(settings: ServerSettings, guild: Guild, status?: s
 	};
 }
 
+function buildBirthdayPanel(settings: ServerSettings, guild: Guild, status?: string) {
+	const currentChannelName = settings.birthdayChannelId
+		? guild.channels.cache.get(settings.birthdayChannelId)?.name
+		: null;
+
+	const toggleMenu = new StringSelectMenuBuilder()
+		.setCustomId('birthdayToggle')
+		.setPlaceholder(`${settings.birthdayEnabled ? 'Enabled' : 'Disabled'}`)
+		.addOptions(
+			new StringSelectMenuOptionBuilder()
+				.setLabel('Enable')
+				.setDescription('Announce birthdays in this server.')
+				.setValue('enable'),
+			new StringSelectMenuOptionBuilder()
+				.setLabel('Disable')
+				.setDescription(`Don't announce birthdays.`)
+				.setValue('disable'),
+		);
+
+	const channelMenu = new ChannelSelectMenuBuilder()
+		.setCustomId('birthdayChannel')
+		.setPlaceholder(currentChannelName ? `#${currentChannelName}` : 'Select a channel for birthdays')
+		.setChannelTypes(ChannelType.GuildText);
+
+	return {
+		embeds: [
+			infoEmbed(
+				status
+					? `${emojis.rightArrow1} **Birthdays** module:\n${emojis.rightArrow2} ${status}`
+					: `${emojis.rightArrow1} **Birthdays** module:`,
+			),
+		],
+		components: [
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(toggleMenu),
+			new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelMenu),
+		],
+	};
+}
+
 function buildHaikuPanel(settings: ServerSettings, status?: string) {
 	const toggleMenu = new StringSelectMenuBuilder()
 		.setCustomId('haikuToggle')
@@ -419,6 +458,10 @@ export class SettingsCommand extends Command {
 					.setDescription('Send messages in a channel when they get enough reactions.')
 					.setValue('starboard'),
 				new StringSelectMenuOptionBuilder()
+					.setLabel('Birthdays')
+					.setDescription('Announce birthdays in a channel.')
+					.setValue('birthdays'),
+				new StringSelectMenuOptionBuilder()
 					.setLabel('Honey Pot')
 					.setDescription('Trap bots with a channel that kicks anyone who posts in it.')
 					.setValue('honeypot'),
@@ -485,6 +528,8 @@ export class SettingsCommand extends Command {
 				await settingChoice.update(buildAutoPublisherPanel(settings));
 			} else if (settingChoice.values[0] === 'starboard') {
 				await settingChoice.update(buildStarboardPanel(settings, guild));
+			} else if (settingChoice.values[0] === 'birthdays') {
+				await settingChoice.update(buildBirthdayPanel(settings, guild));
 			} else if (settingChoice.values[0] === 'honeypot') {
 				await settingChoice.update(buildHoneypotPanel(settings));
 			} else {
@@ -544,6 +589,16 @@ export class SettingsCommand extends Command {
 					const next = await applySettings(i, { loggingChannelId: channelId });
 
 					await i.update(buildLoggingPanel(next, guild, `Logging channel set to <#${channelId}>.`));
+				} else if (i.customId === 'birthdayToggle' && i.isStringSelectMenu()) {
+					const enable = i.values[0] === 'enable';
+					const next = await applySettings(i, { birthdayEnabled: enable });
+
+					await i.update(buildBirthdayPanel(next, guild, `Birthdays **${enable ? 'enabled' : 'disabled'}**.`));
+				} else if (i.customId === 'birthdayChannel' && i.isChannelSelectMenu()) {
+					const channelId = i.values[0];
+					const next = await applySettings(i, { birthdayChannelId: channelId });
+
+					await i.update(buildBirthdayPanel(next, guild, `Birthday channel set to <#${channelId}>.`));
 				} else if (i.customId === 'confessionToggle' && i.isStringSelectMenu()) {
 					const enable = i.values[0] === 'enable';
 					const next = await applySettings(i, { confessionEnabled: enable });
