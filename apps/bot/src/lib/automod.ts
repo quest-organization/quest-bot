@@ -5,7 +5,7 @@
 import { type AutoModRuleType, Prisma, prisma } from '@questbot/database';
 import { EmbedBuilder, type Message, PermissionFlagsBits } from 'discord.js';
 import { applyBan } from './bans.js';
-import { BurstTracker } from './burstTracker.js';
+import { BurstTracker, type TrackedMessage } from './burstTracker.js';
 import { LIMITS_ENABLED, LimitError } from './limits.js';
 import { logger } from './logger.js';
 import { logEmbed } from './logging.js';
@@ -329,24 +329,38 @@ async function logAutoMod(message: Message, rule: AutoModRuleRow, title: string)
 
 const spamTracking = new BurstTracker(5_000);
 
-async function checkSpamRule(message: Message, rule: Extract<AutoModRuleRow, { type: 'SPAM' }>): Promise<boolean> {
+type SpamRule = Extract<AutoModRuleRow, { type: 'SPAM' }>;
+
+export function findSpamTrigger(
+	rules: SpamRule[],
+	recent: TrackedMessage[],
+	channelId: string,
+): { rule: SpamRule; relevant: TrackedMessage[] } | null {
+	for (const rule of rules) {
+		const relevant =
+			rule.config.range === 'PER_CHANNEL' ? recent.filter((entry) => entry.channelId === channelId) : recent;
+
+		if (relevant.length >= rule.config.threshold) return { rule, relevant };
+	}
+
+	return null;
+}
+
+async function checkSpamRules(message: Message, rules: SpamRule[]): Promise<boolean> {
 	if (!message.inGuild()) return false;
 
-	const config = rule.config;
 	const key = `${message.guildId}:${message.author.id}`;
 	const recent = spamTracking.record(key, { channelId: message.channelId, messageId: message.id, sentAt: Date.now() });
 
-	const relevant =
-		config.range === 'PER_CHANNEL' ? recent.filter((entry) => entry.channelId === message.channelId) : recent;
-
-	if (relevant.length < config.threshold) return false;
+	const triggered = findSpamTrigger(rules, recent, message.channelId);
+	if (!triggered) return false;
 
 	spamTracking.clear(key);
 
 	const guild = message.guild;
 
 	await Promise.all(
-		relevant.map((entry) => {
+		triggered.relevant.map((entry) => {
 			const channel = guild.channels.cache.get(entry.channelId);
 			return channel?.isTextBased() ? channel.messages.delete(entry.messageId).catch(() => {}) : undefined;
 		}),
@@ -360,8 +374,8 @@ async function checkSpamRule(message: Message, rule: Extract<AutoModRuleRow, { t
 					.send(`<@${message.author.id}>, slow down! Your recent messages have been deleted for spamming.`)
 					.catch(() => {})
 			: undefined,
-		logAutoMod(message, rule, 'Spam'),
-		applyAutoModAction(message, config.action, 'Automod: spam rule triggered.'),
+		logAutoMod(message, triggered.rule, 'Spam'),
+		applyAutoModAction(message, triggered.rule.config.action, 'Automod: spam rule triggered.'),
 	]);
 
 	return true;
@@ -381,7 +395,7 @@ export async function enforceAutoMod(message: Message, settings: ServerSettings)
 	const rules = await getRules(message.guildId);
 	if (rules.length === 0) return false;
 
-	let spamRule: Extract<AutoModRuleRow, { type: 'SPAM' }> | undefined;
+	const spamRules = rules.filter((rule): rule is SpamRule => rule.type === 'SPAM');
 	const lowerContent = message.content.toLowerCase();
 
 	for (const rule of rules) {
@@ -402,11 +416,9 @@ export async function enforceAutoMod(message: Message, settings: ServerSettings)
 			]);
 			return true;
 		}
-
-		if (rule.type === 'SPAM') spamRule = rule;
 	}
 
-	if (spamRule) return checkSpamRule(message, spamRule);
+	if (spamRules.length > 0) return checkSpamRules(message, spamRules);
 
 	return false;
 }
