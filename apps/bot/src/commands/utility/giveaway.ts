@@ -16,7 +16,7 @@ import {
 } from 'discord.js';
 import ms, { type StringValue } from 'ms';
 import { containsBlockedWord } from '#lib/automod.js';
-import { endGiveaway } from '#lib/giveawayEvent.js';
+import { endGiveaway, scheduleGiveawayEnd, unscheduleGiveawayEnd } from '#lib/giveawayEvent.js';
 import {
 	buildGiveawayComponents,
 	buildGiveawayEmbed,
@@ -202,6 +202,8 @@ export class GiveawayCommand extends Command {
 			return;
 		}
 
+		await scheduleGiveawayEnd(giveaway);
+
 		await interaction.reply({
 			embeds: [successEmbed(`${emojis.rightArrow2} Giveaway started for **${prize}**!\nMessage ID: \`${message.id}\``)],
 			flags: MessageFlags.Ephemeral,
@@ -261,6 +263,7 @@ export class GiveawayCommand extends Command {
 			return;
 		}
 
+		await unscheduleGiveawayEnd(giveaway.id);
 		await deleteGiveaway(giveaway.id);
 
 		const channel = await getChannel(interaction.guild.channels, giveaway.channelId);
