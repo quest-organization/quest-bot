@@ -17,11 +17,6 @@ export function getShardInfo(client: Client): ShardInfo {
 	};
 }
 
-// for the bot wide cleanup that only needs to happen once
-export function isPrimaryShard(client: Client): boolean {
-	return getShardInfo(client).shardId === 0;
-}
-
 export function shardOwns(snowflake: Prisma.Sql, { shardId, totalShards }: ShardInfo): Prisma.Sql {
 	return Prisma.sql`(${snowflake} >> 22) % ${totalShards}::bigint = ${shardId}::bigint`;
 }

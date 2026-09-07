@@ -8,12 +8,15 @@ import { getShardInfo } from '#utils/sharding.js';
 import { logger } from './logger.js';
 import { connection } from './redis.js';
 
-export function createShardQueue<T>(name: string, client: Client, processor: Processor<T>) {
-	const queueName = `${name}-shard-${getShardInfo(client).shardId}`;
-	const queue = new Queue<T>(queueName, { connection });
-	const worker = new Worker<T>(queueName, processor, { connection });
+export function createQueue<T>(name: string, processor: Processor<T>) {
+	const queue = new Queue<T>(name, { connection });
+	const worker = new Worker<T>(name, processor, { connection });
 
 	worker.on('error', (err) => logger.error(err));
 
 	return queue;
+}
+
+export function createShardQueue<T>(name: string, client: Client, processor: Processor<T>) {
+	return createQueue<T>(`${name}-shard-${getShardInfo(client).shardId}`, processor);
 }

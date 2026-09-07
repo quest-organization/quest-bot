@@ -8,11 +8,10 @@ import { initBanScheduler } from '#lib/banScheduler.js';
 import { giveawayScheduler } from '#lib/giveawayEvent.js';
 import { logger } from '#lib/logger.js';
 import { enforceMute, getActiveMutes } from '#lib/mutes.js';
+import { initPurgeScheduler } from '#lib/purgeScheduler.js';
 import { initReminderScheduler } from '#lib/reminderScheduler.js';
-import { purgeDeletedServers } from '#lib/servers.js';
-import { purgeExpiredWarns } from '#lib/warns.js';
 import { heartbeat } from '#utils/heartbeat.js';
-import { getShardInfo, isPrimaryShard } from '#utils/sharding.js';
+import { getShardInfo } from '#utils/sharding.js';
 
 export class ReadyListener extends Listener<typeof Events.ClientReady> {
 	public constructor(context: Listener.LoaderContext, options: Listener.Options) {
@@ -51,6 +50,7 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
 		initReminderScheduler(client);
 		giveawayScheduler(client);
 		initBanScheduler(client);
+		initPurgeScheduler();
 
 		const enforceMutes = async () => {
 			const mutes = await getActiveMutes(getShardInfo(client));
@@ -60,17 +60,7 @@ export class ReadyListener extends Listener<typeof Events.ClientReady> {
 			}
 		};
 
-		const purge = () => {
-			if (isPrimaryShard(client)) {
-				purgeExpiredWarns().catch((err) => logger.error(err));
-				purgeDeletedServers().catch((err) => logger.error(err));
-			}
-		};
-
 		await enforceMutes().catch((err) => logger.error(err));
-		purge();
-
-		setInterval(purge, 60 * 1000); // 1 min
 
 		setInterval(
 			() => {
