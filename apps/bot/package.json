@@ -18,12 +18,14 @@
 	"files": ["dist", "prisma/schema.prisma", "README.md", "LICENSE"],
 	"scripts": {
 		"build": "rimraf dist && tsc",
-		"start": "node --env-file-if-exists=../../.env dist/sharder.js",
+		"start": "node --env-file-if-exists=../../.env --import ./dist/telemetry.js dist/sharder.js",
 		"dev": "concurrently \"tsc --noEmit --watch --preserveWatchOutput\" \"tsx watch --conditions development --env-file-if-exists=../../.env src/index.ts\"",
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
 		"@discordjs/core": "^2.6.0",
+		"@opentelemetry/api-logs": "^0.221.0",
+		"@opentelemetry/auto-instrumentations-node": "^0.79.0",
 		"@questbot/database": "workspace:*",
 		"@sapphire/framework": "^5.5.0",
 		"@types/ms": "^2.1.0",

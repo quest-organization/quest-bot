@@ -30,6 +30,7 @@ if (totalShards !== undefined) {
 
 const manager = new ShardingManager(shardFile, {
 	token: process.env.DISCORD_TOKEN,
+	execArgv: process.execArgv,
 	...(totalShards ? { totalShards } : {}),
 });
 
