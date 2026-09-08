@@ -43,6 +43,10 @@ export async function lockChannel(channel: LockableChannel, reason: string): Pro
 
 	if (!channel.isSendable() || !channel.permissionsFor(me).has(PermissionFlagsBits.ManageRoles)) return false;
 
+	const everyonePerms = channel.permissionsFor(guild.roles.everyone);
+	if (!everyonePerms.has(PermissionFlagsBits.SendMessages)) return false;
+	if (!everyonePerms.has(PermissionFlagsBits.SendMessagesInThreads)) return false;
+
 	try {
 		await channel.permissionOverwrites.edit(
 			guild.roles.everyone,
@@ -81,6 +85,7 @@ export async function lockChannel(channel: LockableChannel, reason: string): Pro
 
 export async function unlockChannel(channel: LockableChannel, reason: string): Promise<boolean> {
 	const row = await prisma.channel.findUnique({ where: { id: channel.id } });
+	if (!row?.locked) return false;
 
 	try {
 		await channel.permissionOverwrites.edit(
