@@ -31,7 +31,7 @@ function isLeapYear(year: number): boolean {
 }
 
 export async function getBirthdaysOn(day: number, month: number, shard?: ShardInfo) {
-    // announce feb 29 birthdays on march 1st outside leap years
+	// announce feb 29 birthdays on march 1st outside leap years
 	const includeLeapDay = day === 1 && month === 3 && !isLeapYear(new Date().getUTCFullYear());
 
 	return prisma.$queryRaw<Prisma.BirthdayModel[]>`
