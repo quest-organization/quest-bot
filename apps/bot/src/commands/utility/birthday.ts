@@ -87,8 +87,8 @@ export class BirthdayCommand extends Command {
 		const settings = await getSettings(interaction.guild.id);
 		const note =
 			settings.birthdayEnabled && settings.birthdayChannelId
-				? `${emojis.rightArrow2} I'll wish you a happy birthday in <#${settings.birthdayChannelId}> and in your DMs.`
-				: `${emojis.rightArrow2} Birthday announcements are off in this server, so nothing will be posted here.\n${emojis.rightArrow2} ...but don't worry! I will still wish you a happy birthday in your DMs.`;
+				? `I'll wish you a happy birthday in <#${settings.birthdayChannelId}> and in your DMs.`
+				: `Birthday announcements are off in this server, so nothing will be posted here.\n...but don't worry! I will still wish you a happy birthday in your DMs.`;
 
 		await interaction.reply({
 			embeds: [infoEmbed(`${emojis.rightArrow2} Your birthday is set to **${day} ${monthName(month)}**.\n${note}`)],
