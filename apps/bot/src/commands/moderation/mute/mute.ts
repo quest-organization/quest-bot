@@ -15,7 +15,9 @@ import {
 	type SlashCommandUserOption,
 } from 'discord.js';
 import ms, { type StringValue } from 'ms';
+import { logger } from '#lib/logger.js';
 import { createMute, enforceMute } from '#lib/mutes.js';
+import { runConfirmedAction } from '#utils/collectors.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
 
@@ -160,28 +162,32 @@ export class MuteCommand extends Command {
 			}
 
 			if (confirmation.customId === 'confirm') {
-				await createMute(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
+				await runConfirmedAction(
+					confirmation,
+					interaction,
+					async () => {
+						await createMute(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
 
-				await targetMember
-					.send(
-						`You have been muted in **${interaction.guild.name}**.\nReason: ${reason}${
-							expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''
-						}`,
-					)
-					.catch(() => {});
+						await targetMember
+							.send(
+								`You have been muted in **${interaction.guild.name}**.\nReason: ${reason}${
+									expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''
+								}`,
+							)
+							.catch(() => {});
 
-				await enforceMute(interaction.guild, targetMember.id);
-				await confirmation.update({
-					embeds: [
-						successEmbed(
+						await enforceMute(interaction.guild, targetMember.id);
+					},
+					{
+						success: successEmbed(
 							`${emojis.rightArrow2} <@${targetMember.user.id}> has been muted with reason: ${reason}${
 								expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''
 							}`,
 						),
-					],
-					allowedMentions: { parse: [], users: [targetMember.user.id] },
-					components: [],
-				});
+						error: errorEmbed(`${emojis.rightArrow2} Failed to mute <@${targetMember.user.id}> with reason: ${reason}`),
+						allowedMentions: { parse: [], users: [targetMember.user.id] },
+					},
+				);
 			} else if (confirmation.customId === 'cancel') {
 				await confirmation.update({
 					embeds: [infoEmbed(`${emojis.rightArrow2} Cancelled.`)],
@@ -189,7 +195,7 @@ export class MuteCommand extends Command {
 				});
 			}
 		} catch (err) {
-			console.error(err);
+			logger.error(err);
 			await interaction.editReply({
 				embeds: [errorEmbed(`${emojis.rightArrow2} No response within a minute or errored.`)],
 				components: [],

@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { ShardingManager } from 'discord.js';
+import { logger } from '#lib/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const shardFile = join(__dirname, 'index.js');
@@ -22,18 +23,19 @@ if (shardCountEnv) {
 }
 
 if (totalShards !== undefined) {
-	console.log(`Shard count: ${shardCountEnv}`);
+	logger.log(`Shard count: ${shardCountEnv}`);
 } else {
-	console.log('No shard count provided using what Discord recommends.');
+	logger.log('No shard count provided using what Discord recommends.');
 }
 
 const manager = new ShardingManager(shardFile, {
 	token: process.env.DISCORD_TOKEN,
+	execArgv: process.execArgv,
 	...(totalShards ? { totalShards } : {}),
 });
 
 manager.on('shardCreate', (shard) => {
-	console.log(`Launched shard ${shard.id}`);
+	logger.log(`Launched shard ${shard.id}`);
 });
 
 void manager.spawn();

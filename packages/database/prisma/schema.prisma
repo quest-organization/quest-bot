@@ -73,22 +73,24 @@ model Server {
   locked           Boolean  @default(false)
   nextTicketNumber Int      @default(1)
   settings         Json     @default("{}")
+  deletedAt        DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  warns       Warn[]
-  mutes       Mute[]
-  bans        Ban[]
-  reminders   Reminder[]
-  tickets     Ticket[]
-  autoroles   AutoRole[]
-  automods    AutoMod[]
-  confessions Confession[]
-  afks        Afk[]
-  giveaways   Giveaway[]
-  channels    Channel[]
-  starboard   Starboard[]
+  warns        Warn[]
+  mutes        Mute[]
+  bans         Ban[]
+  reminders    Reminder[]
+  tickets      Ticket[]
+  autoroles    AutoRole[]
+  automodRules AutoModRule[]
+  confessions  Confession[]
+  afks         Afk[]
+  giveaways    Giveaway[]
+  channels     Channel[]
+  starboard    Starboard[]
 
+  @@index([deletedAt])
   @@map("server")
 }
 
@@ -180,17 +182,24 @@ model AutoRole {
   @@map("autoroles")
 }
 
-model AutoMod {
-  id        String   @id @default(cuid())
+enum AutoModRuleType {
+  WORD
+  SPAM
+  LINKS
+}
+
+model AutoModRule {
+  id        String          @id @default(cuid())
   guildId   String
-  word      String
-  createdAt DateTime @default(now())
+  type      AutoModRuleType
+  config    Json            @default("{}")
+  createdAt DateTime        @default(now())
 
   server Server @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
-  @@unique([guildId, word])
   @@index([guildId])
-  @@map("automods")
+  @@index([guildId, type])
+  @@map("automod_rules")
 }
 
 model Confession {
@@ -226,6 +235,16 @@ model Afk {
   @@unique([guildId, userId])
   @@index([guildId])
   @@map("afks")
+}
+
+model Birthday {
+  userId    String   @id
+  day       Int
+  month     Int
+  createdAt DateTime @default(now())
+
+  @@index([month, day])
+  @@map("birthdays")
 }
 
 model Giveaway {
@@ -264,15 +283,15 @@ model Starboard {
 }
 
 model Channel {
-  id                  String   @id
-  guildId             String
-  stickyContent       String?
-  stickyMessageId     String?
-  locked              Boolean  @default(false)
-  lockedDown          Boolean  @default(false)
-  lockdownMessageId   String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                String   @id
+  guildId           String
+  stickyContent     String?
+  stickyMessageId   String?
+  locked            Boolean  @default(false)
+  lockedDown        Boolean  @default(false)
+  lockdownMessageId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   server Server @relation(fields: [guildId], references: [id], onDelete: Cascade)
 

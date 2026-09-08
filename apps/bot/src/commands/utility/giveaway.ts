@@ -16,7 +16,7 @@ import {
 } from 'discord.js';
 import ms, { type StringValue } from 'ms';
 import { containsBlockedWord } from '#lib/automod.js';
-import { endGiveaway } from '#lib/giveawayEvent.js';
+import { endGiveaway, scheduleGiveawayEnd, unscheduleGiveawayEnd } from '#lib/giveawayEvent.js';
 import {
 	buildGiveawayComponents,
 	buildGiveawayEmbed,
@@ -26,6 +26,7 @@ import {
 	getGiveawayByMessageId,
 	setGiveawayMessageId,
 } from '#lib/giveaways.js';
+import { logger } from '#lib/logger.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
 import { getChannel } from '#utils/getChannel.js';
@@ -179,8 +180,8 @@ export class GiveawayCommand extends Command {
 				components: buildGiveawayComponents(giveaway),
 			});
 		} catch (err) {
-			console.error(err);
-			await deleteGiveaway(giveaway.id).catch((cleanupErr) => console.error(cleanupErr));
+			logger.error(err);
+			await deleteGiveaway(giveaway.id).catch((cleanupErr) => logger.error(cleanupErr));
 			await interaction.reply({
 				embeds: [errorEmbed(`${emojis.rightArrow2} Failed to post the giveaway. Please try again.`)],
 				flags: MessageFlags.Ephemeral,
@@ -191,15 +192,17 @@ export class GiveawayCommand extends Command {
 		try {
 			await setGiveawayMessageId(giveaway.id, message.id);
 		} catch (err) {
-			console.error(err);
-			await deleteGiveaway(giveaway.id).catch((cleanupErr) => console.error(cleanupErr));
-			await message.delete().catch((cleanupErr) => console.error(cleanupErr));
+			logger.error(err);
+			await deleteGiveaway(giveaway.id).catch((cleanupErr) => logger.error(cleanupErr));
+			await message.delete().catch((cleanupErr) => logger.error(cleanupErr));
 			await interaction.reply({
 				embeds: [errorEmbed(`${emojis.rightArrow2} Failed to post the giveaway. Please try again.`)],
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
 		}
+
+		await scheduleGiveawayEnd(giveaway);
 
 		await interaction.reply({
 			embeds: [successEmbed(`${emojis.rightArrow2} Giveaway started for **${prize}**!\nMessage ID: \`${message.id}\``)],
@@ -260,6 +263,7 @@ export class GiveawayCommand extends Command {
 			return;
 		}
 
+		await unscheduleGiveawayEnd(giveaway.id);
 		await deleteGiveaway(giveaway.id);
 
 		const channel = await getChannel(interaction.guild.channels, giveaway.channelId);

@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { randomInt } from 'node:crypto';
-import { Prisma, prisma } from '@questbot/database';
+import { type Prisma, prisma } from '@questbot/database';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, type Client, EmbedBuilder } from 'discord.js';
 import { Colors } from '#utils/embeds.js';
 import { getChannel } from '#utils/getChannel.js';
-import { type ShardInfo, shardOwns } from '#utils/sharding.js';
 
 type GiveawayView = Prisma.GiveawayModel;
 
@@ -189,17 +188,6 @@ export async function leaveGiveaway(giveawayId: string, userId: string) {
 			data: { entries: giveaway.entries.filter((id) => id !== userId) },
 		});
 	});
-}
-
-export async function getDueGiveaways(shard: ShardInfo) {
-	return prisma.$queryRaw<GiveawayView[]>`
-		SELECT * FROM "giveaways"
-		WHERE "ended" = false
-			AND "endsAt" <= ${new Date()}
-			AND ${shardOwns(Prisma.sql`"guildId"::bigint`, shard)}
-		ORDER BY "endsAt" ASC
-		LIMIT 100
-	`;
 }
 
 export async function deleteGiveaway(giveawayId: string) {

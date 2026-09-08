@@ -15,7 +15,10 @@ import {
 	type SlashCommandUserOption,
 } from 'discord.js';
 import ms, { type StringValue } from 'ms';
+import { scheduleUnban } from '#lib/banScheduler.js';
 import { applyBan, createBan } from '#lib/bans.js';
+import { logger } from '#lib/logger.js';
+import { runConfirmedAction } from '#utils/collectors.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
 
@@ -137,33 +140,35 @@ export class BanCommand extends Command {
 			}
 
 			if (confirmation.customId === 'confirm') {
-				try {
-					await createBan(interaction.guild.id, interaction.guild.name, targetMember.id, expiresAt, reason);
-					await applyBan(interaction.guild, targetMember.id, reason);
-					await targetMember
-						.send(
-							`You have been banned from **${interaction.guild.name}**.\nReason: ${reason}${
-								expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''
-							}`,
-						)
-						.catch(() => {});
-					await confirmation.update({
-						embeds: [
-							successEmbed(`${emojis.rightArrow2} <@${targetMember.user.id}> has been banned with reason: ${reason}`),
-						],
+				await runConfirmedAction(
+					confirmation,
+					interaction,
+					async () => {
+						const ban = await createBan(
+							interaction.guild.id,
+							interaction.guild.name,
+							targetMember.id,
+							expiresAt,
+							reason,
+						);
+						await scheduleUnban(ban);
+						await applyBan(interaction.guild, targetMember.id, reason);
+						await targetMember
+							.send(
+								`You have been banned from **${interaction.guild.name}**.\nReason: ${reason}${
+									expiresAt ? `\nExpires: <t:${Math.floor(expiresAt.getTime() / 1000)}:R>` : ''
+								}`,
+							)
+							.catch(() => {});
+					},
+					{
+						success: successEmbed(
+							`${emojis.rightArrow2} <@${targetMember.user.id}> has been banned with reason: ${reason}`,
+						),
+						error: errorEmbed(`${emojis.rightArrow2} Failed to ban <@${targetMember.user.id}> with reason: ${reason}`),
 						allowedMentions: { parse: [], users: [targetMember.user.id] },
-						components: [],
-					});
-				} catch (err) {
-					console.error(err);
-					await confirmation.update({
-						embeds: [
-							errorEmbed(`${emojis.rightArrow2} Failed to ban <@${targetMember.user.id}> with reason: ${reason}`),
-						],
-						allowedMentions: { parse: [], users: [targetMember.user.id] },
-						components: [],
-					});
-				}
+					},
+				);
 			} else if (confirmation.customId === 'cancel') {
 				await confirmation.update({
 					embeds: [infoEmbed(`${emojis.rightArrow2} Cancelled.`)],
@@ -171,7 +176,7 @@ export class BanCommand extends Command {
 				});
 			}
 		} catch (err) {
-			console.error(err);
+			logger.error(err);
 			await interaction.editReply({
 				embeds: [errorEmbed(`${emojis.rightArrow2} No response within a minute or errored.`)],
 				components: [],

@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { type Prisma, prisma } from '@questbot/database';
-import type { ScamAction } from './scamProtection.js';
 
 export type ServerSettings = {
 	welcomePeople: boolean;
@@ -21,10 +20,10 @@ export type ServerSettings = {
 	starboardChannelId?: string | null;
 	starboardRequirement: number;
 	starboardEmoji: string;
-	scamProtectionEnabled: boolean;
-	scamProtectionAction: ScamAction;
-	scamProtectionExemptionRole: string | null;
 	honeypotChannelId: string | null;
+	automodExemptRoleId?: string | null;
+	birthdayEnabled?: boolean;
+	birthdayChannelId?: string | null;
 };
 
 export const DefaultSettings: ServerSettings = {
@@ -43,10 +42,10 @@ export const DefaultSettings: ServerSettings = {
 	starboardChannelId: null,
 	starboardRequirement: 3,
 	starboardEmoji: '⭐️',
-	scamProtectionEnabled: false,
-	scamProtectionAction: 'delete',
-	scamProtectionExemptionRole: null,
 	honeypotChannelId: null,
+	automodExemptRoleId: null,
+	birthdayEnabled: false,
+	birthdayChannelId: null,
 };
 
 // used for logging setting changes
@@ -74,11 +73,12 @@ export const SETTING_LABELS: Record<keyof ServerSettings, { category: string; na
 	starboardRequirement: { category: 'Starboard', name: 'Reactions Required' },
 	starboardEmoji: { category: 'Starboard', name: 'Emoji' },
 
-	scamProtectionEnabled: { category: 'Scam Protection', name: 'Status' },
-	scamProtectionAction: { category: 'Scam Protection', name: 'Action' },
-	scamProtectionExemptionRole: { category: 'Scam Protection', name: 'Exemption Role' },
-
 	honeypotChannelId: { category: 'Honey Pot', name: 'Channel' },
+
+	automodExemptRoleId: { category: 'Automod', name: 'Exclusion Role' },
+
+	birthdayEnabled: { category: 'Birthdays', name: 'Status' },
+	birthdayChannelId: { category: 'Birthdays', name: 'Channel' },
 };
 
 // caching rather than ending up fetching the settings basically each message

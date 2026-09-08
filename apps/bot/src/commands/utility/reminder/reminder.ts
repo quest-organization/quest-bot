@@ -12,6 +12,8 @@ import {
 import ms, { type StringValue } from 'ms';
 import { containsBlockedWord } from '#lib/automod.js';
 import { LimitError } from '#lib/limits.js';
+import { logger } from '#lib/logger.js';
+import { scheduleReminder, unscheduleReminder } from '#lib/reminderScheduler.js';
 import { createReminder, getReminder, removeReminder } from '#lib/reminders.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
@@ -94,6 +96,8 @@ export class ReminderCommand extends Command {
 						)
 					: await createReminder(interaction.user.id, message, remindAt);
 
+				await scheduleReminder(reminder);
+
 				const unix = Math.floor(remindAt.getTime() / 1000);
 				await interaction.reply({
 					embeds: [
@@ -105,7 +109,7 @@ export class ReminderCommand extends Command {
 				});
 				return;
 			} catch (err) {
-				console.error(err);
+				logger.error(err);
 				if (err instanceof LimitError) {
 					await interaction.reply({
 						embeds: [errorEmbed(`${emojis.rightArrow2} ${err.message}`)],
@@ -139,6 +143,7 @@ export class ReminderCommand extends Command {
 			}
 
 			await removeReminder(id);
+			await unscheduleReminder(id);
 			await interaction.reply({
 				embeds: [successEmbed(`${emojis.rightArrow2} Reminder removed.`)],
 				flags: MessageFlags.Ephemeral,

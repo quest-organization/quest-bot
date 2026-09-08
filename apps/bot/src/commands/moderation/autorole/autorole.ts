@@ -16,6 +16,7 @@ import {
 } from 'discord.js';
 import { createAutoRole, getAutoRole, getAutoRoles, removeAutoRole } from '#lib/autorole.js';
 import { LimitError } from '#lib/limits.js';
+import { logger } from '#lib/logger.js';
 import { awaitMessageComponentSafe } from '#utils/collectors.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
@@ -77,9 +78,16 @@ export class AutoRoleCommand extends Command {
 			return;
 		}
 
+		const query = focusedOption.value.toString().trim().toLowerCase();
 		const autoRoles = await getAutoRoles(interaction.guildId);
-		const choices = autoRoles.slice(0, 25).map((autoRole) => ({
+		const named = autoRoles.map((autoRole) => ({
+			autoRole,
 			name: interaction.guild?.roles.cache.get(autoRole.roleId)?.name ?? autoRole.roleId,
+		}));
+		const matches = query ? named.filter(({ name }) => name.toLowerCase().includes(query)) : named;
+
+		const choices = matches.slice(0, 25).map(({ autoRole, name }) => ({
+			name,
 			value: autoRole.id,
 		}));
 
@@ -134,7 +142,7 @@ export class AutoRoleCommand extends Command {
 					return;
 				}
 
-				console.error(err);
+				logger.error(err);
 
 				await interaction.reply({
 					embeds: [errorEmbed(`${emojis.rightArrow2} That role is already an auto role in this server.`)],

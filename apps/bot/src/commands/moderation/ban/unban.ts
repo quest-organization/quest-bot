@@ -13,7 +13,10 @@ import {
 	PermissionsBitField,
 	type SlashCommandStringOption,
 } from 'discord.js';
+import { unscheduleUnban } from '#lib/banScheduler.js';
 import { getBan, removeBan } from '#lib/bans.js';
+import { logger } from '#lib/logger.js';
+import { runConfirmedAction } from '#utils/collectors.js';
 import { errorEmbed, infoEmbed, successEmbed } from '#utils/embeds.js';
 import { emojis } from '#utils/emoji.js';
 
@@ -97,26 +100,24 @@ export class UnbanCommand extends Command {
 			}
 
 			if (confirmation.customId === 'confirm') {
-				try {
-					await removeBan(interaction.guild, targetMember.id);
-					await targetMember
-						.send(`You have been unbanned in **${interaction.guild.name}**.\nReason: ${reason}`)
-						.catch(() => {});
-					await confirmation.update({
-						embeds: [
-							successEmbed(`${emojis.rightArrow2} <@${targetMember.id}> has been unbanned with reason: ${reason}`),
-						],
+				await runConfirmedAction(
+					confirmation,
+					interaction,
+					async () => {
+						await removeBan(interaction.guild, targetMember.id);
+						if (dbBan) await unscheduleUnban(dbBan.id);
+						await targetMember
+							.send(`You have been unbanned in **${interaction.guild.name}**.\nReason: ${reason}`)
+							.catch(() => {});
+					},
+					{
+						success: successEmbed(
+							`${emojis.rightArrow2} <@${targetMember.id}> has been unbanned with reason: ${reason}`,
+						),
+						error: errorEmbed(`${emojis.rightArrow2} Failed to unban <@${targetMember.id}> with reason: ${reason}`),
 						allowedMentions: { parse: [], users: [targetMember.id] },
-						components: [],
-					});
-				} catch (err) {
-					console.error(err);
-					await confirmation.update({
-						embeds: [errorEmbed(`${emojis.rightArrow2} Failed to unban <@${targetMember.id}> with reason: ${reason}`)],
-						allowedMentions: { parse: [], users: [targetMember.id] },
-						components: [],
-					});
-				}
+					},
+				);
 			} else if (confirmation.customId === 'cancel') {
 				await confirmation.update({
 					embeds: [infoEmbed(`${emojis.rightArrow2} Cancelled.`)],
@@ -124,7 +125,7 @@ export class UnbanCommand extends Command {
 				});
 			}
 		} catch (err) {
-			console.error(err);
+			logger.error(err);
 			await interaction.editReply({
 				embeds: [errorEmbed(`${emojis.rightArrow2} No response within a minute or errored.`)],
 				components: [],
