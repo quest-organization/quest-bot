@@ -26,11 +26,17 @@ export async function getBirthday(userId: string) {
 	return prisma.birthday.findUnique({ where: { userId } });
 }
 
+function isLeapYear(year: number): boolean {
+	return new Date(Date.UTC(year, 1, 29)).getUTCMonth() === 1;
+}
+
 export async function getBirthdaysOn(day: number, month: number, shard?: ShardInfo) {
+    // announce feb 29 birthdays on march 1st outside leap years
+	const includeLeapDay = day === 1 && month === 3 && !isLeapYear(new Date().getUTCFullYear());
+
 	return prisma.$queryRaw<Prisma.BirthdayModel[]>`
 		SELECT * FROM "birthdays"
-		WHERE "day" = ${day}
-			AND "month" = ${month}
+		WHERE (("day" = ${day} AND "month" = ${month}) OR (${includeLeapDay} AND "day" = 29 AND "month" = 2))
 			AND ${shard ? shardOwns(Prisma.sql`"userId"::bigint`, shard) : Prisma.sql`TRUE`}
 	`;
 }
